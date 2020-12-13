@@ -1,2 +1,2 @@
 # QuickEditor
-Custom menu，toolbar and
+使用MetaData快速扩展Editor
