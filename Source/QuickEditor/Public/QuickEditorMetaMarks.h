@@ -10,6 +10,10 @@ namespace UM
 		// [meta value]:	icon style set, style set and icon name, eg. "EditorStyle::GraphEditor.Enum_16x"
 		QEIcon ,
 
+		// specify icon size for menu or bar
+        // [meta value]:	icon size, default is 40x40, eg. "40, 40"
+        QEIconSize ,
+
 		// specify if item is popup
 		// [function type]:			static 
 		// [function signature]:	void(void)
@@ -68,7 +72,7 @@ namespace UM
 	{
 		// reroute actions to target class
 		// [support]:		QEAssetItem, QEActorItem,QECreateNew, QECreateFile, QEDetail 
-		// [meta value]:	target class, eg. "AActor"
+		// [meta value]:	target class, without prefix, eg. "Actor"
 		QEReroute ,
 	};
 }

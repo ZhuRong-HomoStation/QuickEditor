@@ -17,6 +17,7 @@ struct FMenuFunctionInfo
 	bool		bIsPopUp = false;
 	FString		StyleSet;
 	FString		StyleName;
+	FString		ToolTip;
 	UClass*		TargetClass;
 };
 

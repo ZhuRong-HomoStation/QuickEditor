@@ -114,6 +114,7 @@ void UQuickEditorService::_LoadIcons()
 			{
 				CHECK_STATIC(It);
 				FString IconPath = It->GetMetaData(TEXT("QEIcon"));
+				FString IconSize = It->GetMetaData(TEXT("QEIconSize"));
 
 				// resolve path
 				if (IconPath.Find(TEXT("::")) != INDEX_NONE) continue;		// style set case 
@@ -131,7 +132,15 @@ void UQuickEditorService::_LoadIcons()
 				IconPath = FPaths::ConvertRelativePathToFull(IconPath);
 
 				// load icon
-				FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, FVector2D(40, 40));
+				FVector2D Size(40, 40);
+				if (!IconSize.IsEmpty())
+				{
+					FString XSize, YSize;
+					IconSize.Split(TEXT(","), &XSize, &YSize);
+					Size.X = FCString::Atof(*XSize);
+					Size.Y = FCString::Atof(*YSize);
+				}
+				FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, Size);
 
 				// combine style name
 				FString StyleName = ItClass->GetName() + TEXT(".") + It->GetName();

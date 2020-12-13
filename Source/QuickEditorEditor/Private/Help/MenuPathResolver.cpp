@@ -90,6 +90,7 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 			Info.StyleSet = MoveTemp(StyleSet);
 			Info.StyleName = MoveTemp(StyleName);
 			Info.TargetClass = InTargetClass;
+			Info.ToolTip = InFunction->GetMetaData("ToolTip");
 			Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
 			FunctionInfos.Add(InFunction, MoveTemp(Info));
 		}
@@ -166,6 +167,7 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 		Info.StyleSet = MoveTemp(StyleSet);
 		Info.StyleName = MoveTemp(StyleName);
 		Info.TargetClass = InTargetClass;
+		Info.ToolTip = InFunction->GetMetaData("ToolTip");
 		Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
         FunctionInfos.Add(InFunction, MoveTemp(Info));
 	}
@@ -253,7 +255,7 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
                 	return MenuBuilder.MakeWidget();
                 }),
                 FText::FromString(Node.MenuName),
-                FText::GetEmpty());
+                FText::FromString(FuncInfo.ToolTip));
 			}
 			else
 			{
@@ -267,7 +269,7 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
                     })),
                     NAME_None,
                     FText::FromString(Node.MenuName),
-                    FText::GetEmpty(),
+                    FText::FromString(FuncInfo.ToolTip),
                     FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName));	
 			}
 		}
@@ -296,7 +298,7 @@ void FMenuPathResolver::_ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* In
 		{
 			InBuilder.AddSubMenu(
 				FText::FromString(InNode->MenuName),
-				FText::GetEmpty(),
+				FText::FromString(FuncInfo.ToolTip),
 				FNewMenuDelegate::CreateLambda([this, InNode](FMenuBuilder& InBuilder)
 				{
 					OnBeginPopUp(InBuilder);
@@ -309,7 +311,7 @@ void FMenuPathResolver::_ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* In
 		{
 			InBuilder.AddMenuEntry(
 				FText::FromString(InNode->MenuName),
-				FText::GetEmpty(),
+				FText::FromString(FuncInfo.ToolTip),
 				FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName),
 	            FUIAction(FExecuteAction::CreateLambda([this, InNode]
 	            {
@@ -400,7 +402,7 @@ void FMenuPathResolver::_ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* In
 		{
 			InBuilder.AddPullDownMenu(
 				FText::FromString(InNode->MenuName),
-				FText::GetEmpty(),
+				FText::FromString(FuncInfo.ToolTip),
 				FNewMenuDelegate::CreateLambda([this, InNode](FMenuBuilder& InBuilder)
 				{
 					OnBeginPopUp(InBuilder);
@@ -413,7 +415,7 @@ void FMenuPathResolver::_ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* In
 		{
 			InBuilder.AddMenuEntry(
 				FText::FromString(InNode->MenuName),
-				FText::GetEmpty(),
+				FText::FromString(FuncInfo.ToolTip),
 				FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName),
 	            FUIAction(FExecuteAction::CreateLambda([this, InNode]
 	            {
