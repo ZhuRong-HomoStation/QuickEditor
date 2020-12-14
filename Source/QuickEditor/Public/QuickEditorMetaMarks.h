@@ -51,7 +51,8 @@ namespace UM
 		// add menu item to asset menu(right click asset icon) 
         // [function type]:			static
         // [function signature]:	void(void)
-        // [meta value]:			menu path, eg. "Test/SubMenu/Section1.Item" 
+        // [meta value]:			Asset Category and name, default is misc, eg. "MyCate::MyAsset", "MyAsset" mains "Misc::MyAsset"
+		// [Tips]:					Built in category can be found in EAssetTypeCategories
         QEAssetItem ,
 
         // add menu item to actor menu(right click Actor) 

@@ -30,7 +30,11 @@ namespace QE
 
 	namespace AssetNew
 	{
-		
+		QUICKEDITOR_API UClass*			GetClass();
+		QUICKEDITOR_API UObject*		GetOuter();
+		QUICKEDITOR_API FName			GetName();
+		QUICKEDITOR_API EObjectFlags	GetFlags();
+		QUICKEDITOR_API FString			GetImportFileName();
 	}
 }
 

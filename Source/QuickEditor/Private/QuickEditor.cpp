@@ -4,14 +4,26 @@
 
 namespace QE
 {
+	// Global 
 	bool bIsMenuState = false;
 	bool bIsDetailState = false;
 	bool bIsActorState = false;
 	bool bIsAssetState = false;
 	FQECmdBuffer	CmdBuffer;
 
+	// Actor action  
 	TArray<AActor*>		SelectedActors;
+
+	// Asset action 
 	TArray<UObject*>	SelectedAssets;
+
+	// Factory
+	UClass*			NewObjectClass;
+	UObject*		NewObjectOuter;
+	FName			NewObjectName;
+	EObjectFlags	NewObjectFlag;
+	FString			ImportFileName;
+	
 	
 	void CleanState()
 	{
@@ -59,6 +71,31 @@ namespace QE
 	const TArray<UObject*>& Asset::GetSelectedAsset()
 	{
 		return SelectedAssets;
+	}
+
+	UClass* AssetNew::GetClass()
+	{
+		return NewObjectClass;
+	}
+
+	UObject* AssetNew::GetOuter()
+	{
+		return NewObjectOuter;
+	}
+
+	FName AssetNew::GetName()
+	{
+		return NewObjectName;
+	}
+
+	EObjectFlags AssetNew::GetFlags()
+	{
+		return NewObjectFlag;
+	}
+
+	FString AssetNew::GetImportFileName()
+	{
+		return ImportFileName;
 	}
 }
 
