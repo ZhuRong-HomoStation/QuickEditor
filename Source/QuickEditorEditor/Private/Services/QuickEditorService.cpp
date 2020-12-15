@@ -27,6 +27,8 @@ namespace QEPrivate
 
 UQuickEditorService::UQuickEditorService()
 {
+	// IHotReloadInterface& HotReloadSupport = FModuleManager::LoadModuleChecked<IHotReloadInterface>("HotReload");
+	// HotReloadSupport.OnHotReload().AddRaw(this, &FGraphNodeClassHelper::OnHotReload);
 }
 
 void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
@@ -221,6 +223,12 @@ void UQuickEditorService::_InitToolBar()
 
 void UQuickEditorService::_InitAssetNew()
 {
+	// step1: collect category map		  ---|	in same loop  
+	// step2: collect class and function  ---|
+	// step3: build factory new	  ---|	
+	// step4: build factory file  ---|	in same loop 
+	// step5: build toolkit		  ---|
+	
 	for (TObjectIterator<UClass> ItClass; ItClass; ++ItClass)
 	{
 		if (ItClass->HasMetaData(TEXT("QECreateNew")))
@@ -232,6 +240,20 @@ void UQuickEditorService::_InitAssetNew()
 			
 		}
 	}
+}
+
+void UQuickEditorService::_InitDetail()
+{
+	// step1: inject hack property
+	// step2: register detail extension
+	// step3: collect class to detail customizations map
+	// step4: build detail call chain(child first) 
+	// in this function just do these 
+
+	// here begin detail customization
+	// step1: find lowest class 
+	// step2: search detail call chain 
+	// step3: loop call and decode for hide/show parent 
 }
 
 #undef CHECK_STATIC

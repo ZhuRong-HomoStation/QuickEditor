@@ -3,6 +3,7 @@
 UQEFactoryNew::UQEFactoryNew(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	SupportedClass = UObject::StaticClass();
 	bCreateNew = true;
 	bEditAfterNew = true;
 }
@@ -15,11 +16,13 @@ UObject* UQEFactoryNew::FactoryCreateNew(
 	UObject* Context,
 	FFeedbackContext* Warn)
 {
+	return nullptr;
 }
 
 UQEFactoryFile::UQEFactoryFile(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	SupportedClass = UObject::StaticClass();
 	bCreateNew = false;
 	bEditorImport = true;
 }
@@ -34,4 +37,5 @@ UObject* UQEFactoryFile::FactoryCreateFile(
 	FFeedbackContext* Warn,
 	bool& bOutOperationCanceled)
 {
+	return nullptr;
 }

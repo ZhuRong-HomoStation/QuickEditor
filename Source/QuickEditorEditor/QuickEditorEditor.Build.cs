@@ -7,6 +7,8 @@ public class QuickEditorEditor : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "../QuickEditor/Private"));
+		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{

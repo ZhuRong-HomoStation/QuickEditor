@@ -28,7 +28,9 @@ private:
 	void _InitToolBar();
 
 	void _InitAssetNew();
-	
+	void _InitDetail();
+
+	// TODO Execute menu commands
 	// TODO CreateAsset
 	// TODO Detail
 

@@ -42,4 +42,9 @@ namespace QE
 	{
 		QUICKEDITOR_API void AssetState(bool InEnable);
 	}
+
+	namespace AssetNew
+	{
+		QUICKEDITOR_API void AssetNewState(bool InEnable);
+	}
 }

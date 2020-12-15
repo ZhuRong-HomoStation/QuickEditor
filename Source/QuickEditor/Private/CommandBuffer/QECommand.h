@@ -25,11 +25,12 @@ struct FQECommand
 struct FQEAddEntry : public FQECommand
 {
 	static constexpr auto Type = EQECommand::Menu_AddEntry;
-	FString		EntryName;
-	FString		EntryIcon;
+	FString			EntryName;
+	FString			EntryIcon;
+	FSimpleDelegate EntryEvent;
 };
 
-struct FQEWidget : public FQECommand
+struct FQEAddWidget : public FQECommand
 {
 	static constexpr auto Type = EQECommand::Menu_AddWidget;
 	TSharedPtr<SWidget>		Widget;

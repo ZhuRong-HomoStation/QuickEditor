@@ -493,10 +493,12 @@ void FActorMenuPathResolver::RebuildNodes()
 void FActorMenuPathResolver::OnBeginPopUp(FMenuBuilder& InBuilder)
 {
 	QE::Menu::MenuState(true);
+	OnEntryCallBegin();
 }
 
 void FActorMenuPathResolver::OnEndPopUp(FMenuBuilder& InBuilder)
 {
+	OnEntryCallEnd();
 	QE::CleanState();
 	QEPrivate::ResolveActorCommands(InBuilder);
 	QE::CleanCommands();
@@ -505,10 +507,12 @@ void FActorMenuPathResolver::OnEndPopUp(FMenuBuilder& InBuilder)
 void FActorMenuPathResolver::OnEntryCallBegin()
 {
 	GEditor->GetSelectedActors()->GetSelectedObjects(QE::SelectedActors);
+	QE::Actor::ActorState(true);
 }
 
 void FActorMenuPathResolver::OnEntryCallEnd()
 {
+	QE::Actor::ActorState(false);
 	QE::SelectedActors.Reset();
 }
 
@@ -527,10 +531,12 @@ void FAssetMenuPathResolver::RebuildNodes()
 void FAssetMenuPathResolver::OnBeginPopUp(FMenuBuilder& InBuilder)
 {
 	QE::Menu::MenuState(true);
+	OnEntryCallBegin();
 }
 
 void FAssetMenuPathResolver::OnEndPopUp(FMenuBuilder& InBuilder)
 {
+	OnEntryCallEnd();
 	QE::CleanState();
 	QEPrivate::ResolveAssetCommands(InBuilder);
 	QE::CleanCommands();
@@ -545,11 +551,13 @@ void FAssetMenuPathResolver::OnEntryCallBegin()
 	{
 		QE::SelectedAssets.Add(Asset.GetAsset());
 	}
+	QE::Asset::AssetState(true);
 }
 
 void FAssetMenuPathResolver::OnEntryCallEnd()
 {
 	QE::SelectedAssets.Reset();
+	QE::Asset::AssetState(false);
 }
 
 void FToolBarPathResolver::OnBeginPopUp(FMenuBuilder& InBuilder)

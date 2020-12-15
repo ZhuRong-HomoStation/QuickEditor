@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "QECommand.h"
 
-class FQECmdBuffer
+class QUICKEDITOR_API FQECmdBuffer
 {
 public:
 	void Reset()
@@ -11,13 +11,14 @@ public:
 	}
 
 	template<typename TCmd>
-	void Write(const TCmd& InCmd)
+	void Write(TCmd& InCmd)
 	{
 		static_assert(TIsDerivedFrom<TCmd, FQECommand>::Value, "Command must derived from base command");
 
 		InCmd.CommandType = TCmd::Type;
 		uint32 Idx = m_Buffer.AddUninitialized(sizeof(TCmd));
-		FMemory::Memcpy(m_Buffer.GetData() + Idx, &InCmd, sizeof(TCmd));
+		TCmd* Cmd = reinterpret_cast<TCmd*>(m_Buffer.GetData() + Idx);
+		new (Cmd)TCmd(InCmd);
 	}
 
 	EQECommand Peek()
