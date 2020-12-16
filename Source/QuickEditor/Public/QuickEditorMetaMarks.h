@@ -47,7 +47,8 @@ namespace UM
 		// create new asset support(right click content browser)
 		// [function type]:			static
 		// [function signature]:	void(void)
-		// [meta value]:			create button path, eg. "MyAssets/AssetA"
+        // [meta value]:			Asset Category and name, default is Misc, eg. "MyCate::MyAsset", "MyAsset" mains "Misc::MyAsset"
+        // [Tips]:					Built in category can be found in EAssetTypeCategories
 		QECreateNew ,
 
 		// import new asset support(drag file to content)
@@ -59,8 +60,7 @@ namespace UM
 		// add menu item to asset menu(right click asset icon) 
         // [function type]:			static
         // [function signature]:	void(void)
-        // [meta value]:			Asset Category and name, default is misc, eg. "MyCate::MyAsset", "MyAsset" mains "Misc::MyAsset"
-		// [Tips]:					Built in category can be found in EAssetTypeCategories
+        // [meta value]:			menu path, eg. "Test/SubMenu/Section1.Item" 
         QEAssetItem ,
 
         // add menu item to actor menu(right click Actor) 
@@ -83,6 +83,9 @@ namespace UM
 		// [support]:		QEAssetItem, QEActorItem,QECreateNew, QECreateFile, QEDetail 
 		// [meta value]:	target class, without prefix, eg. "Actor"
 		QEReroute ,
+
+		// may add
+		QEDefaultNew ,
 	};
 }
 

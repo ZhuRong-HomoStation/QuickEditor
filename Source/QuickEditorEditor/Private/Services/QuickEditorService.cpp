@@ -2,6 +2,10 @@
 
 #include <typeindex>
 
+
+
+#include "AssetToolsModule.h"
+#include "AssetTypeCategories.h"
 #include "ContentBrowserModule.h"
 #include "LevelEditor.h"
 #include "Logging.h"
@@ -9,6 +13,8 @@
 #include "QuickEditor_Internal.h"
 #include "Help/CommandResolvers.h"
 #include "Help/MenuPathResolver.h"
+#include "Help/QEAssetTypeAction.h"
+#include "Help/QEFactories.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyle.h"
 #include "Styling/SlateStyleRegistry.h"
@@ -43,6 +49,7 @@ void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
 	_InitActorEditMenu();
 	_InitAssetEditMenu();
 	_InitToolBar();
+	_InitAssetNew();
 }
 
 void UQuickEditorService::Deinitialize()
@@ -118,37 +125,98 @@ void UQuickEditorService::_LoadIcons()
 				FString IconPath = It->GetMetaData(TEXT("QEIcon"));
 				FString IconSize = It->GetMetaData(TEXT("QEIconSize"));
 
-				// resolve path
-				if (IconPath.Find(TEXT("::")) != INDEX_NONE) continue;		// style set case 
-				FString Root;
-				FString RelativePath;
-				IconPath.Split(TEXT("/"), &Root, &RelativePath);
-				if (Root == TEXT("Project"))
+				if (It->HasMetaData(TEXT("QECreateNew")))
 				{
-					IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
+					_ResolveThumbnail(IconPath, IconSize, *It);
 				}
 				else
 				{
-					IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
+					_ResolveIcon(IconPath, IconSize, *It);
 				}
-				IconPath = FPaths::ConvertRelativePathToFull(IconPath);
-
-				// load icon
-				FVector2D Size(40, 40);
-				if (!IconSize.IsEmpty())
-				{
-					FString XSize, YSize;
-					IconSize.Split(TEXT(","), &XSize, &YSize);
-					Size.X = FCString::Atof(*XSize);
-					Size.Y = FCString::Atof(*YSize);
-				}
-				FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, Size);
-
-				// combine style name
-				FString StyleName = ItClass->GetName() + TEXT(".") + It->GetName();
-				StyleSet->Set(FName(StyleName), Brush);
 			}
 		}
+	}
+}
+
+void UQuickEditorService::_ResolveIcon(FString IconPath, FString IconSize, UFunction* InFunc)
+{
+	// resolve path
+	if (IconPath.Find(TEXT("::")) != INDEX_NONE) return;		// style set case 
+	FString Root;
+	FString RelativePath;
+	IconPath.Split(TEXT("/"), &Root, &RelativePath);
+	if (Root == TEXT("Project"))
+	{
+		IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
+	}
+	else
+	{
+		IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
+	}
+	IconPath = FPaths::ConvertRelativePathToFull(IconPath);
+
+	// load icon 
+	FVector2D Size(40, 40);
+	if (!IconSize.IsEmpty())
+	{
+		FString XSize, YSize;
+		IconSize.Split(TEXT(","), &XSize, &YSize);
+		Size.X = FCString::Atof(*XSize);
+		Size.Y = FCString::Atof(*YSize);
+	}
+	FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, Size);
+
+	// combine style name
+	FString StyleName = InFunc->GetOuter()->GetName() + TEXT(".") + InFunc->GetName();
+	StyleSet->Set(FName(StyleName), Brush);
+}
+
+void UQuickEditorService::_ResolveThumbnail(FString IconPath, FString IconSize, UFunction* InFunc)
+{
+	// resolve path
+	if (IconPath.Find(TEXT("::")) != INDEX_NONE)
+	{
+		FSlateBrush* Brush = nullptr;
+		{
+			FString TempStyleSet, TempStyleName;
+			IconPath.Split(TEXT("::"), &TempStyleSet, &TempStyleName);
+			FSlateIcon Icon(*TempStyleSet, *TempStyleName);
+			Brush = new FSlateBrush(*Icon.GetOptionalIcon());
+		}
+
+		// combine style name
+		FString StyleName = TEXT("ClassThumbnail.") + InFunc->GetOuter()->GetName();
+		StyleSet->Set(FName(StyleName), Brush);
+	}
+	else
+	{
+		FString Root;
+		FString RelativePath;
+		IconPath.Split(TEXT("/"), &Root, &RelativePath);
+		if (Root == TEXT("Project"))
+		{
+			IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
+		}
+		else
+		{
+			IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
+		}
+		IconPath = FPaths::ConvertRelativePathToFull(IconPath);
+
+		// load icon 
+		FVector2D Size(40, 40);
+		if (!IconSize.IsEmpty())
+		{
+			FString XSize, YSize;
+			IconSize.Split(TEXT(","), &XSize, &YSize);
+			Size.X = FCString::Atof(*XSize);
+			Size.Y = FCString::Atof(*YSize);
+		}
+		FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, Size);
+
+		// combine style name
+		FString StyleName = TEXT("ClassThumbnail.") + InFunc->GetOuter()->GetName();
+		StyleSet->Set(FName(StyleName), Brush);
 	}
 }
 
@@ -223,21 +291,167 @@ void UQuickEditorService::_InitToolBar()
 
 void UQuickEditorService::_InitAssetNew()
 {
-	// step1: collect category map		  ---|	in same loop  
-	// step2: collect class and function  ---|
-	// step3: build factory new	  ---|	
-	// step4: build factory file  ---|	in same loop 
-	// step5: build toolkit		  ---|
+
+	// load asset tools 
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+
+	// init map
+	TMap<FName, EAssetTypeCategories::Type> Categories;
+	Categories.Reserve(32);
+	Categories.Add(TEXT("Basic"), EAssetTypeCategories::Basic);
+	Categories.Add(TEXT("Animation"), EAssetTypeCategories::Animation);
+	Categories.Add(TEXT("MaterialsAndTextures"), EAssetTypeCategories::MaterialsAndTextures);
+	Categories.Add(TEXT("Sounds"), EAssetTypeCategories::Sounds);
+	Categories.Add(TEXT("Physics"), EAssetTypeCategories::Physics);
+	Categories.Add(TEXT("UI"), EAssetTypeCategories::UI);
+	Categories.Add(TEXT("Misc"), EAssetTypeCategories::Misc);
+	Categories.Add(TEXT("Gameplay"), EAssetTypeCategories::Gameplay);
+	Categories.Add(TEXT("Blueprint"), EAssetTypeCategories::Blueprint);
+	Categories.Add(TEXT("Media"), EAssetTypeCategories::Media);
 	
+	// collect categories and classes
+	struct FFactoryInfo
+	{
+		UFunction*					NewFactory = nullptr;
+		EAssetTypeCategories::Type	Category;
+		FString						NewItemName;
+		
+		UFunction*					FileFactory = nullptr;
+		TArray<FString>				SupportFileExtensions;
+	};
+	TMap<UClass*, FFactoryInfo> ClassFactoryMap;
 	for (TObjectIterator<UClass> ItClass; ItClass; ++ItClass)
 	{
-		if (ItClass->HasMetaData(TEXT("QECreateNew")))
+		UClass* TargetClass = *ItClass;
+		FFactoryInfo FactoryInfo;
+
+		// reroute 
+		if (ItClass->HasMetaData(TEXT("QEReroute")))
 		{
-			
+			TargetClass = FindObjectChecked<UClass>(ANY_PACKAGE, *ItClass->GetMetaData(TEXT("QEReroute")));
 		}
-		else if (ItClass->HasMetaData(TEXT("QECreateFile")))
+
+		// search factories 
+		for (TFieldIterator<UFunction> ItFunc(*ItClass); ItFunc; ++ItFunc)
 		{
+			if (ItFunc->HasMetaData(TEXT("QECreateNew")))
+			{
+				checkf(FactoryInfo.NewFactory == nullptr, TEXT("class %s: QECreateNew function conflict"), *ItClass->GetName());
+				FactoryInfo.NewFactory = *ItFunc;
+			}
+			else if (ItFunc->HasMetaData(TEXT("QECreateFile")))
+			{
+				checkf(FactoryInfo.FileFactory == nullptr, TEXT("class %s: QECreateFile function conflict"), *ItClass->GetName());
+				FactoryInfo.FileFactory = *ItFunc;
+			}
+		}
+
+		// parse factories
+		FFactoryInfo* Info = ClassFactoryMap.Find(TargetClass);
+		if ((FactoryInfo.NewFactory || FactoryInfo.FileFactory) && !Info)
+		{
+			Info = &ClassFactoryMap.Add(TargetClass);
+		}
+		if (Info)
+		{
+			Info->NewItemName = TargetClass->GetName();
+		}
+		
+		if (FactoryInfo.NewFactory)
+		{
+			FString Value = FactoryInfo.NewFactory->GetMetaData(TEXT("QECreateNew"));
+			FString Category, Name;
+			if (!Value.Split(TEXT("::"), &Category, &Name))
+			{
+				Category = TEXT("Misc");
+				Name = Value;
+			}
+
+			// register category
+			EAssetTypeCategories::Type* FoundCate = Categories.Find(FName(Category));
+			if (!FoundCate)
+			{
+				EAssetTypeCategories::Type NewCate = AssetTools.RegisterAdvancedAssetCategory(
+					FName(Category),
+					FText::FromString(Category));
+				FoundCate = &Categories.Add(FName(Category), NewCate);
+			}
+			FactoryInfo.Category = *FoundCate;
+			FactoryInfo.NewItemName = Name;
 			
+			// add to map 
+			checkf(Info->NewFactory == nullptr, TEXT("Class %s QECreateNew Confilict!!!"), *TargetClass->GetName());
+			Info->Category = FactoryInfo.Category;
+			Info->NewFactory = FactoryInfo.NewFactory;
+			Info->NewItemName = FactoryInfo.NewItemName;
+		}
+		if (FactoryInfo.FileFactory)
+		{
+			FString Value = FactoryInfo.FileFactory->GetMetaData(TEXT("QECreateFile"));
+			FString Token;
+
+			// collect files 
+			while (Value.Split(TEXT(","), &Token, &Value))
+			{
+				FactoryInfo.SupportFileExtensions.Add(Token);
+			}
+			FactoryInfo.SupportFileExtensions.Add(Value);
+			
+			// add to map
+			checkf(Info->FileFactory == nullptr, TEXT("Class %s QECreateFile Confilict!!!"), *TargetClass->GetName());
+			Info->FileFactory = FactoryInfo.FileFactory;
+			Info->SupportFileExtensions = FactoryInfo.SupportFileExtensions;
+		}
+	}
+
+	// build factories
+	for (auto& Item : ClassFactoryMap)
+	{
+		// add toolkit
+		TSharedPtr<FQEAssetTypeAction> AssetAction = MakeShared<FQEAssetTypeAction>();
+		AssetAction->Name = Item.Value.NewItemName;
+		AssetAction->SupportClass = Item.Key;
+		AssetAction->AssetCategory = Item.Value.Category;
+		AssetTools.RegisterAssetTypeActions(AssetAction.ToSharedRef());
+		
+		if (Item.Value.NewFactory)
+		{
+			// add factory
+			UClass* NewFactoryClass = NewObject<UClass>(GetTransientPackage(), FName(Item.Key->GetName() + TEXT("FactoryNew")),
+				RF_Standalone);
+			NewFactoryClass->SetSuperStruct(UQEFactoryNew::StaticClass());
+			NewFactoryClass->Bind();
+			NewFactoryClass->StaticLink(true);
+			NewFactoryClass->AssembleReferenceTokenStream();
+			NewFactoryClass->AddToRoot();
+			
+			// create default object 
+			UQEFactoryNew* NewFactory = Cast<UQEFactoryNew>(NewFactoryClass->GetDefaultObject());
+			NewFactory->AddToRoot();
+			NewFactory->SupportedClass = Item.Key;
+			UQEFactoryNew::NewFunctionMap.Add(NewFactoryClass, Item.Value.NewFactory);
+		}
+		
+		if (Item.Value.FileFactory)
+		{
+			// add factory
+			UClass* FileFactoryClass = NewObject<UClass>(GetTransientPackage(), FName(Item.Key->GetName() + TEXT("FactoryFile")),
+                RF_Standalone);
+			FileFactoryClass->SetSuperStruct(UQEFactoryFile::StaticClass());
+			FileFactoryClass->Bind();
+			FileFactoryClass->StaticLink(true);
+			FileFactoryClass->AssembleReferenceTokenStream();
+			FileFactoryClass->AddToRoot();
+			
+			// create default object 
+			UQEFactoryFile* FileFactory = Cast<UQEFactoryFile>(FileFactoryClass->GetDefaultObject());
+			FileFactory->AddToRoot();
+			FileFactory->SupportedClass = Item.Key;
+			for (auto& Extension : Item.Value.SupportFileExtensions)
+			{
+				FileFactory->Formats.Add(Extension + TEXT("; Import file"));
+			}
+			UQEFactoryFile::NewFunctionMap.Add(FileFactoryClass, Item.Value.FileFactory);
 		}
 	}
 }

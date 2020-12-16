@@ -21,6 +21,8 @@ protected:
 private:
 	void _InitPaths();
 	void _LoadIcons();
+	void _ResolveIcon(FString IconPath, FString IconSize, UFunction* InFunc);
+	void _ResolveThumbnail(FString IconPath, FString IconSize, UFunction* InFunc);
 	
 	void _InitLevelEditMenu();
 	void _InitAssetEditMenu();
@@ -30,8 +32,6 @@ private:
 	void _InitAssetNew();
 	void _InitDetail();
 
-	// TODO Execute menu commands
-	// TODO CreateAsset
 	// TODO Detail
 
 private:

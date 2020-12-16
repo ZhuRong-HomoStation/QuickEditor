@@ -25,11 +25,12 @@ namespace QE
 	TArray<UObject*>	SelectedAssets;
 
 	// Factory
-	UClass*			NewObjectClass;
-	UObject*		NewObjectOuter;
+	UClass*			NewObjectClass = nullptr;
+	UObject*		NewObjectOuter = nullptr;
 	FName			NewObjectName;
 	EObjectFlags	NewObjectFlag;
 	FString			ImportFileName;
+	UObject*		NewCreatedObject = nullptr;
 	
 	
 	void CleanState()
@@ -111,10 +112,33 @@ namespace QE
 		return NewObjectFlag;
 	}
 
-	FString AssetNew::GetImportFileName()
+	FString AssetNew::GetImportFilePath()
 	{
 		CHECK_STATE_ASSET_NEW;
 		return ImportFileName;
+	}
+
+	void AssetNew::CreatedObject(UObject* InObject)
+	{
+		CHECK_STATE_ASSET_NEW;
+		NewCreatedObject = InObject;
+	}
+
+	UObject* AssetNew::CreatedObject()
+	{
+		CHECK_STATE_ASSET_NEW;
+		return NewCreatedObject;
+	}
+
+	UObject* AssetNew::CreateDefault()
+	{
+		CHECK_STATE_ASSET_NEW;
+		NewCreatedObject = NewObject<UObject>(
+            NewObjectOuter,
+            NewObjectClass,
+            NewObjectName,
+            NewObjectFlag);
+		return NewCreatedObject;
 	}
 
 	void Menu::AddEntry(const FString& InEntryName, const FString& InEntryIcon, const FSimpleDelegate& InEntryEvent)

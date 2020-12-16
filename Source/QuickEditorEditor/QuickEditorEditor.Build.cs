@@ -31,6 +31,7 @@ public class QuickEditorEditor : ModuleRules
 				"ContentBrowser" ,
 				"Projects" ,
 				"UnrealEd" ,
+				"PropertyEditor" ,
 			});
 	}
 }

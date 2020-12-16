@@ -1,9 +1,24 @@
 ﻿#include "QEFactories.h"
+#include "QuickEditor.h"
+#include "QuickEditor_Internal.h"
+
+TMap<UClass*, UFunction*> UQEFactoryNew::NewFunctionMap;
+TMap<UClass*, UFunction*> UQEFactoryFile::NewFunctionMap;
 
 UQEFactoryNew::UQEFactoryNew(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	SupportedClass = UObject::StaticClass();
+	auto Fun = NewFunctionMap.Find(GetClass());
+	if (Fun)
+	{
+		SupportedClass = Cast<UClass>((*Fun)->GetOuter());
+	}
+	else
+	{
+		// check(!ObjectInitializer.GetObj()->HasAnyFlags(EObjectFlags::RF_ClassDefaultObject));
+		SupportedClass = UObject::StaticClass();
+	}
+	
 	bCreateNew = true;
 	bEditAfterNew = true;
 }
@@ -16,15 +31,47 @@ UObject* UQEFactoryNew::FactoryCreateNew(
 	UObject* Context,
 	FFeedbackContext* Warn)
 {
-	return nullptr;
+	QE::NewObjectClass = InClass;
+	QE::NewObjectOuter = InParent;
+	QE::NewObjectName = InName;
+	QE::NewObjectFlag = Flags;
+	QE::AssetNew::AssetNewState(true);
+
+	UFunction* Func = NewFunctionMap[GetClass()];
+	FFrame Stack(nullptr, Func, nullptr);
+	Func->Invoke(nullptr, Stack, nullptr);
+	
+	QE::AssetNew::AssetNewState(false);
+	
+	return QE::NewCreatedObject;
 }
 
 UQEFactoryFile::UQEFactoryFile(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	SupportedClass = UObject::StaticClass();
+	auto Fun = NewFunctionMap.Find(GetClass());
+	if (Fun)
+	{
+		SupportedClass = Cast<UClass>((*Fun)->GetOuter());
+	}
+	else
+	{
+		// check(!ObjectInitializer.GetObj()->HasAnyFlags(EObjectFlags::RF_ClassDefaultObject));
+		SupportedClass = UObject::StaticClass();
+	}
+
+	if (GetClass()->ClassDefaultObject)
+	{
+		Formats = ((UQEFactoryFile*)GetClass()->ClassDefaultObject)->Formats;
+	}
+	
 	bCreateNew = false;
 	bEditorImport = true;
+}
+
+void UQEFactoryFile::GetSupportedFileExtensions(TArray<FString>& OutExtensions) const
+{
+	Super::GetSupportedFileExtensions(OutExtensions);
 }
 
 UObject* UQEFactoryFile::FactoryCreateFile(
@@ -37,5 +84,18 @@ UObject* UQEFactoryFile::FactoryCreateFile(
 	FFeedbackContext* Warn,
 	bool& bOutOperationCanceled)
 {
-	return nullptr;
+	QE::NewObjectClass = InClass;
+	QE::NewObjectOuter = InParent;
+	QE::NewObjectName = InName;
+	QE::NewObjectFlag = Flags;
+	QE::ImportFileName = Filename;
+	QE::AssetNew::AssetNewState(true);
+
+	UFunction* Func = NewFunctionMap[GetClass()];
+	FFrame Stack(nullptr, Func, nullptr);
+	Func->Invoke(nullptr, Stack, nullptr);
+	
+	QE::AssetNew::AssetNewState(false);
+	
+	return QE::NewCreatedObject;
 }

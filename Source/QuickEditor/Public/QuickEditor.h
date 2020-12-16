@@ -34,7 +34,10 @@ namespace QE
 		QUICKEDITOR_API UObject*		GetOuter();
 		QUICKEDITOR_API FName			GetName();
 		QUICKEDITOR_API EObjectFlags	GetFlags();
-		QUICKEDITOR_API FString			GetImportFileName();
+		QUICKEDITOR_API FString			GetImportFilePath();
+		QUICKEDITOR_API void			CreatedObject(UObject* InObject);
+		QUICKEDITOR_API UObject*		CreatedObject();
+		QUICKEDITOR_API UObject*		CreateDefault();
 	}
 }
 

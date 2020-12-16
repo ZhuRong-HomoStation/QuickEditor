@@ -17,6 +17,7 @@ namespace QE
 	QUICKEDITOR_API extern FName			NewObjectName;
 	QUICKEDITOR_API extern EObjectFlags		NewObjectFlag;
 	QUICKEDITOR_API extern FString			ImportFileName;
+	QUICKEDITOR_API extern UObject*			NewCreatedObject;
 
 	// Commands 
 	QUICKEDITOR_API void CleanState();
