@@ -83,6 +83,9 @@ namespace UM
         // [meta value]:			None, it just a mark
         // [!!!InProgress]:			this functional is in develop, don't use it 
 		QEItemDetail ,
+
+		// call in editor, can with params 
+		QECallInEditor ,
 	};
 
 	// meta data for UCLASS 
@@ -100,7 +103,9 @@ namespace UM
 	enum QE_UP
 	{
 		// may add
+		// use quick editor array layout 
 		QEArray ,
+		// use quick editor map layout 
 		QEMap ,
 	};
 	

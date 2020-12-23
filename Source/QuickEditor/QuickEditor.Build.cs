@@ -20,5 +20,22 @@ public class QuickEditor : ModuleRules
 				"Slate",
 				"SlateCore",
 			});
+
+		// editor case 
+		if (Target.Type == TargetType.Editor)
+		{
+			PrivateDependencyModuleNames.AddRange(
+				new string[]
+				{
+					"LevelEditor",
+					"EditorSubsystem",
+					"ToolMenus" ,
+					"MainFrame" ,
+					"ContentBrowser" ,
+					"Projects" ,
+					"UnrealEd" ,
+					"PropertyEditor" ,
+				});
+		}
 	}
 }

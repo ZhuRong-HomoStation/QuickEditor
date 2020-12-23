@@ -1,11 +1,18 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!   DO NOT USE THIS FILE IN YOUR PROJECT   !!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 class FQECmdBuffer;
 
+// TODO: remove command buffer 
 namespace QE
 {
-	// Actor actions  
+	// Actor actions 
 	QUICKEDITOR_API extern TArray<AActor*>		SelectedActors;
 
 	// Asset actions 
