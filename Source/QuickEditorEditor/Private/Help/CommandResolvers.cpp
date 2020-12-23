@@ -6,6 +6,7 @@
 #include "CommandBuffer/QECmdBuffer.h"
 #include "CommandBuffer/QECommand.h"
 #include "Engine/Selection.h"
+#include "Services/QuickEditorService.h"
 
 class FContentBrowserModule;
 
@@ -15,17 +16,19 @@ void QEPrivate::ResolveMenuCommands(FMenuBuilder& InBuilder)
 
 	EQECommand Cmd = Buffer.Peek();
 
+	int32 Count = 0;
 	while (Cmd != EQECommand::Unknown)
 	{
 		switch (Cmd)
 		{
-		case EQECommand::Menu_AddEntry:		_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddEntry>()); break;
-		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>()); break;
-		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>()); break;
-		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>());break;
+		case EQECommand::Menu_AddEntry:		_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddEntry>(), Count); break;
+		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>(), Count); break;
+		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>(), Count); break;
+		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>(), Count);break;
 		default: checkNoEntry();
 		}
 		Cmd = Buffer.Peek();
+		++Count;
 	}
 }
 
@@ -35,6 +38,7 @@ void QEPrivate::ResolveActorCommands(FMenuBuilder& InBuilder)
 
 	EQECommand Cmd = Buffer.Peek();
 
+	int32 Count = 0;
 	while (Cmd != EQECommand::Unknown)
 	{
 		switch (Cmd)
@@ -52,15 +56,16 @@ void QEPrivate::ResolveActorCommands(FMenuBuilder& InBuilder)
 				QE::Actor::ActorState(false);
 				QE::SelectedActors.Reset();
             });
-			_ResolveMenuCommand(InBuilder, AddEntry);
+			_ResolveMenuCommand(InBuilder, AddEntry, Count);
 			break;
 		}
-		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>()); break;
-		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>()); break;
-		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>());break;
+		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>(), Count); break;
+		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>(), Count); break;
+		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>(), Count);break;
 		default: checkNoEntry();
 		}
 		Cmd = Buffer.Peek();
+		++Count;
 	}
 }
 
@@ -70,6 +75,7 @@ void QEPrivate::ResolveAssetCommands(FMenuBuilder& InBuilder)
 
 	EQECommand Cmd = Buffer.Peek();
 
+	int32 Count = 0;
 	while (Cmd != EQECommand::Unknown)
 	{
 		switch (Cmd)
@@ -93,19 +99,20 @@ void QEPrivate::ResolveAssetCommands(FMenuBuilder& InBuilder)
 				QE::SelectedAssets.Reset();
 				QE::Asset::AssetState(false);
 			});
-			_ResolveMenuCommand(InBuilder, AddEntry);
+			_ResolveMenuCommand(InBuilder, AddEntry, Count);
 			break;
 		}
-		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>()); break;
-		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>()); break;
-		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>());break;
+		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>(), Count); break;
+		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>(), Count); break;
+		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>(), Count);break;
 		default: checkNoEntry();
 		}
 		Cmd = Buffer.Peek();
+		++Count;
 	}
 }
 
-void QEPrivate::_ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd)
+void QEPrivate::_ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd, int32 CommandID)
 {
 	switch (InCmd.CommandType)
 	{
@@ -114,7 +121,12 @@ void QEPrivate::_ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& I
 		const FQEAddEntry& Cmd = static_cast<const FQEAddEntry&>(InCmd);
 
 		FString StyleSet, StyleName;
-		Cmd.EntryIcon.Split(TEXT("::"), &StyleSet, &StyleName);
+		if (!Cmd.EntryIcon.Split(TEXT("::"), &StyleSet, &StyleName))
+		{
+			StyleSet = TEXT("QEStyleSet");
+			StyleName = TEXT("Entry.") + Cmd.EntryIcon;
+			UQuickEditorService::Get().AddIcon(StyleName, Cmd.EntryIcon);
+		}
 
 		InBuilder.AddMenuEntry(
 			FText::FromString(Cmd.EntryName),

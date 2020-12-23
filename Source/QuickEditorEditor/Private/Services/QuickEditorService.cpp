@@ -1,9 +1,4 @@
 ﻿#include "QuickEditorService.h"
-
-#include <typeindex>
-
-
-
 #include "AssetToolsModule.h"
 #include "AssetTypeCategories.h"
 #include "ContentBrowserModule.h"
@@ -35,6 +30,38 @@ UQuickEditorService::UQuickEditorService()
 {
 	// IHotReloadInterface& HotReloadSupport = FModuleManager::LoadModuleChecked<IHotReloadInterface>("HotReload");
 	// HotReloadSupport.OnHotReload().AddRaw(this, &FGraphNodeClassHelper::OnHotReload);
+}
+
+void UQuickEditorService::AddIcon(const FString& InName, const FString& InPath, FVector2D Size)
+{
+	if (StyleSet->GetBrush(FName(InName)) != StyleSet->GetDefaultBrush())
+		return;
+	FString Path = InPath;
+	if (FPaths::IsRelative(InPath))
+	{
+		Path = ResolveIconPath(InPath);
+	}
+	FSlateImageBrush* Brush = new FSlateImageBrush(Path, Size);
+
+	// combine style name 
+	StyleSet->Set(FName(InName), Brush);
+}
+
+FString UQuickEditorService::ResolveIconPath(const FString& InPath)
+{
+	FString IconPath = InPath;
+	FString Root;
+	FString RelativePath;
+	IconPath.Split(TEXT("/"), &Root, &RelativePath);
+	if (Root == TEXT("Project"))
+	{
+		IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
+	}
+	else
+	{
+		IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
+	}
+	return FPaths::ConvertRelativePathToFull(IconPath);
 }
 
 void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
@@ -125,7 +152,7 @@ void UQuickEditorService::_LoadIcons()
 				FString IconPath = It->GetMetaData(TEXT("QEIcon"));
 				FString IconSize = It->GetMetaData(TEXT("QEIconSize"));
 
-				if (It->HasMetaData(TEXT("QECreateNew")))
+				if (It->HasMetaData(TEXT("QECreateNew")) || It->HasMetaData(TEXT("QECreateFile")))
 				{
 					_ResolveThumbnail(IconPath, IconSize, *It);
 				}
@@ -142,18 +169,9 @@ void UQuickEditorService::_ResolveIcon(FString IconPath, FString IconSize, UFunc
 {
 	// resolve path
 	if (IconPath.Find(TEXT("::")) != INDEX_NONE) return;		// style set case 
-	FString Root;
-	FString RelativePath;
-	IconPath.Split(TEXT("/"), &Root, &RelativePath);
-	if (Root == TEXT("Project"))
-	{
-		IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
-	}
-	else
-	{
-		IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
-	}
-	IconPath = FPaths::ConvertRelativePathToFull(IconPath);
+
+	// resolve path  
+	IconPath = ResolveIconPath(IconPath);
 
 	// load icon 
 	FVector2D Size(40, 40);
@@ -173,6 +191,14 @@ void UQuickEditorService::_ResolveIcon(FString IconPath, FString IconSize, UFunc
 
 void UQuickEditorService::_ResolveThumbnail(FString IconPath, FString IconSize, UFunction* InFunc)
 {
+	// get class name
+	UClass* Class = (UClass*)InFunc->GetOuter();
+	FString ClassName = Class->GetName();
+	if (Class->HasMetaData(TEXT("QEReroute")))
+	{
+		ClassName = Class->GetMetaData(TEXT("QEReroute"));
+	}
+	
 	// resolve path
 	if (IconPath.Find(TEXT("::")) != INDEX_NONE)
 	{
@@ -185,23 +211,13 @@ void UQuickEditorService::_ResolveThumbnail(FString IconPath, FString IconSize, 
 		}
 
 		// combine style name
-		FString StyleName = TEXT("ClassThumbnail.") + InFunc->GetOuter()->GetName();
+		FString StyleName = TEXT("ClassThumbnail.") + ClassName;
 		StyleSet->Set(FName(StyleName), Brush);
 	}
 	else
 	{
-		FString Root;
-		FString RelativePath;
-		IconPath.Split(TEXT("/"), &Root, &RelativePath);
-		if (Root == TEXT("Project"))
-		{
-			IconPath = FPaths::Combine(FPaths::ProjectDir(), RelativePath);
-		}
-		else
-		{
-			IconPath = FPaths::Combine(IPluginManager::Get().FindPlugin(Root)->GetBaseDir(), RelativePath);
-		}
-		IconPath = FPaths::ConvertRelativePathToFull(IconPath);
+		// resolve path  
+		IconPath = ResolveIconPath(IconPath);
 
 		// load icon 
 		FVector2D Size(40, 40);
@@ -215,7 +231,7 @@ void UQuickEditorService::_ResolveThumbnail(FString IconPath, FString IconSize, 
 		FSlateImageBrush* Brush = new FSlateImageBrush(IconPath, Size);
 
 		// combine style name
-		FString StyleName = TEXT("ClassThumbnail.") + InFunc->GetOuter()->GetName();
+		FString StyleName = TEXT("ClassThumbnail.") + ClassName;
 		StyleSet->Set(FName(StyleName), Brush);
 	}
 }
@@ -430,6 +446,7 @@ void UQuickEditorService::_InitAssetNew()
 			NewFactory->AddToRoot();
 			NewFactory->SupportedClass = Item.Key;
 			UQEFactoryNew::NewFunctionMap.Add(NewFactoryClass, Item.Value.NewFactory);
+			UQEFactoryNew::SupportClassMap.Add(NewFactoryClass, Item.Key);
 		}
 		
 		if (Item.Value.FileFactory)
@@ -452,6 +469,7 @@ void UQuickEditorService::_InitAssetNew()
 				FileFactory->Formats.Add(Extension + TEXT("; Import file"));
 			}
 			UQEFactoryFile::NewFunctionMap.Add(FileFactoryClass, Item.Value.FileFactory);
+			UQEFactoryFile::SupportClassMap.Add(FileFactoryClass, Item.Key);
 		}
 	}
 }

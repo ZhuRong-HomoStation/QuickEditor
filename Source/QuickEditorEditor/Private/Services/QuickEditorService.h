@@ -12,6 +12,13 @@ class UQuickEditorService : public UEditorSubsystem
 	GENERATED_BODY()
 public:
 	UQuickEditorService();
+	static UQuickEditorService& Get()
+	{
+		return *GEditor->GetEditorSubsystem<UQuickEditorService>();
+	}
+
+	void AddIcon(const FString& InName, const FString& InPath, FVector2D Size = FVector2D(40, 40));
+	FString ResolveIconPath(const FString& InPath);
 
 protected:
 	// ~Begin USubsystem API 
@@ -32,6 +39,7 @@ private:
 	void _InitAssetNew();
 	void _InitDetail();
 
+	// TODO Reimport FReimportManager::Instance()->OnPreReimport()
 	// TODO Detail
 
 private:

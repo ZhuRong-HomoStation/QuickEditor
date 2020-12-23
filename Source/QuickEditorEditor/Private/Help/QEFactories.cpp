@@ -1,9 +1,13 @@
 ﻿#include "QEFactories.h"
+
+#include "EditorReimportHandler.h"
 #include "QuickEditor.h"
 #include "QuickEditor_Internal.h"
 
 TMap<UClass*, UFunction*> UQEFactoryNew::NewFunctionMap;
+TMap<UClass*, UClass*> UQEFactoryNew::SupportClassMap;
 TMap<UClass*, UFunction*> UQEFactoryFile::NewFunctionMap;
+TMap<UClass*, UClass*> UQEFactoryFile::SupportClassMap;
 
 UQEFactoryNew::UQEFactoryNew(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -11,7 +15,7 @@ UQEFactoryNew::UQEFactoryNew(const FObjectInitializer& ObjectInitializer)
 	auto Fun = NewFunctionMap.Find(GetClass());
 	if (Fun)
 	{
-		SupportedClass = Cast<UClass>((*Fun)->GetOuter());
+		SupportedClass = SupportClassMap[GetClass()];
 	}
 	else
 	{
@@ -52,7 +56,7 @@ UQEFactoryFile::UQEFactoryFile(const FObjectInitializer& ObjectInitializer)
 	auto Fun = NewFunctionMap.Find(GetClass());
 	if (Fun)
 	{
-		SupportedClass = Cast<UClass>((*Fun)->GetOuter());
+		SupportedClass = SupportClassMap[GetClass()];
 	}
 	else
 	{

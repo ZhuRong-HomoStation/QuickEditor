@@ -9,5 +9,5 @@ namespace QEPrivate
 	void ResolveActorCommands(FMenuBuilder& InBuilder);
 	void ResolveAssetCommands(FMenuBuilder& InBuilder);
 
-	void _ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd);
+	void _ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd, int32 CommandID);
 }

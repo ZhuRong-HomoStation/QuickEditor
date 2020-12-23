@@ -1,2 +1,4 @@
 # QuickEditor
 使用MetaData快速扩展Editor
+
+示例:  将根目录下的[Example](./Example/)拷贝至任意Module的目录下，eg. /Source/QuickEditor/Example，即可在编辑器内看到示例

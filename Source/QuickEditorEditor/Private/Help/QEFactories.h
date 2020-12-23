@@ -13,6 +13,7 @@ protected:
 	virtual bool ShouldShowInNewMenu() const override { return true; }
 public:
 	static TMap<UClass*, UFunction*> NewFunctionMap;
+	static TMap<UClass*, UClass*> SupportClassMap;
 };
 
 UCLASS(CustomConstructor)
@@ -26,4 +27,5 @@ public:
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
 public:
 	static TMap<UClass*, UFunction*> NewFunctionMap;
+	static TMap<UClass*, UClass*> SupportClassMap;
 };
