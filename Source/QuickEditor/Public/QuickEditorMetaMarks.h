@@ -26,7 +26,7 @@ namespace UM
 		// [meta value]:			window type, "[1,2,3...] | [Win/Dock/Modal]", token one mains max window num, default is 1
 		// [meta value]:			eg. "1|Dock" mains create a single dock window, "Win" mains create a single normal window  
 		// [meta value]:			"Modal" mains create a modal window, notice that modal window can only be single window  
-		// [!!!InProgress]
+		// [!!!InProgress]:			this functional is in develop, don't use it 
 		QEWindow ,
 	};
 	
@@ -70,12 +70,19 @@ namespace UM
         // [meta value]:			menu path, eg. "Test/SubMenu/Section1.Item" 
         QEActorItem ,
 
-		// custom detail
+		// custom class detail
 		// [function type]:			static
 		// [function signature]:	void(void)
 		// [meta value]:			None, it just a mark
-		// [!!!InProgress]
+		// [!!!InProgress]:			this functional is in develop, don't use it 
 		QEDetail ,
+
+		// custom property detail 
+        // [function type]:			static
+        // [function signature]:	void(void)
+        // [meta value]:			None, it just a mark
+        // [!!!InProgress]:			this functional is in develop, don't use it 
+		QEItemDetail ,
 	};
 
 	// meta data for UCLASS 
@@ -86,8 +93,17 @@ namespace UM
 		// [meta value]:	target class, without prefix, eg. "Actor"
 		QEReroute ,
 
-		// may add 
-		QEDefaultNew ,
+		// may add
 	};
+
+	// meta data for UPROPERTY
+	enum QE_UP
+	{
+		// may add
+		QEArray ,
+		QEMap ,
+	};
+	
+	
 }
 
