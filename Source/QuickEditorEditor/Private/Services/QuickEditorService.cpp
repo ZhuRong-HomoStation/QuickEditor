@@ -6,6 +6,7 @@
 #include "Logging.h"
 #include "QuickEditor.h"
 #include "QuickEditor_Internal.h"
+#include "Config/QuickEditorConfig.h"
 #include "Help/CommandResolvers.h"
 #include "Help/MenuPathResolver.h"
 #include "Help/QEAssetTypeAction.h"
@@ -72,9 +73,12 @@ void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
 
 	_LoadIcons();
 	_InitPaths();
+	_InitPathIcons();
+	
 	_InitLevelEditMenu();
 	_InitActorEditMenu();
 	_InitAssetEditMenu();
+
 	_InitToolBar();
 	_InitAssetNew();
 }
@@ -162,6 +166,31 @@ void UQuickEditorService::_LoadIcons()
 				}
 			}
 		}
+	}
+}
+
+void UQuickEditorService::_InitPathIcons()
+{
+	UQuickEditorConfig* Config = UQuickEditorConfig::Get();
+
+	for (auto& Icon : Config->MainMenuPathIcons)
+	{
+		LevelEditorPaths.SetPathIcon(Icon.Key, Icon.Value);
+	}
+
+	for (auto& Icon : Config->ActorActionPathIcons)
+	{
+		ActorEditorPaths.SetPathIcon(Icon.Key, Icon.Value);
+	}
+
+	for (auto& Icon : Config->AssetActionPathIcons)
+	{
+		AssetEditorPaths.SetPathIcon(Icon.Key, Icon.Value);
+	}
+
+	for (auto& Icon : Config->ToolBarPathIcons)
+	{
+		ToolBarEditorPaths.SetPathIcon(Icon.Key, Icon.Value);
 	}
 }
 

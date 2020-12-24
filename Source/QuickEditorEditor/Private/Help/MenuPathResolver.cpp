@@ -6,6 +6,7 @@
 #include "QuickEditor.h"
 #include "QuickEditor_Internal.h"
 #include "Engine/Selection.h"
+#include "Services/QuickEditorService.h"
 
 class FContentBrowserModule;
 class FLevelEditorModule;
@@ -87,8 +88,8 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 			}
 			FMenuFunctionInfo Info;
 			Info.Path = InPath;
-			Info.StyleSet = MoveTemp(StyleSet);
-			Info.StyleName = MoveTemp(StyleName);
+			CurNode->StyleSet = MoveTemp(StyleSet);
+			CurNode->StyleName = MoveTemp(StyleName);
 			Info.TargetClass = InTargetClass;
 			Info.ToolTip = InFunction->GetMetaData("ToolTip");
 			Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
@@ -158,18 +159,62 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 			MoveTemp(EntryName),
 			{},
 			InFunction});
-
+	CurNode = &CurNode->ChildNodes.Top();
+	
 	// add to function map
 	if (AddToFunctionInfos)
 	{
 		FMenuFunctionInfo Info;
 		Info.Path = InPath;
-		Info.StyleSet = MoveTemp(StyleSet);
-		Info.StyleName = MoveTemp(StyleName);
+		CurNode->StyleSet = MoveTemp(StyleSet);
+		CurNode->StyleName = MoveTemp(StyleName);
 		Info.TargetClass = InTargetClass;
 		Info.ToolTip = InFunction->GetMetaData("ToolTip");
 		Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
         FunctionInfos.Add(InFunction, MoveTemp(Info));
+	}
+}
+
+void FMenuPathResolver::SetPathIcon(const FString& InPath, const FString& InIconPath)
+{
+	FString Path = InPath;
+	FString NodeName;
+	FMenuNode* CurNode = nullptr;
+	TArray<FMenuNode>* NodeArray = &EntryNodes;
+	
+	auto FindNode = [&NodeName](const FMenuNode& InNode)
+	{
+		return InNode.MenuName == NodeName;
+	};
+	
+	// init root node 
+	if (!Path.Split(TEXT("/"), &NodeName, &Path))
+	{
+		NodeName = MoveTemp(Path);
+	}
+
+	// search end node
+	do
+	{
+		NodeName.Split(TEXT("."), nullptr, &NodeName);
+		CurNode = NodeArray->FindByPredicate(FindNode);
+		if (!CurNode) return;
+		NodeArray = &CurNode->ChildNodes;
+	} while (Path.Split(TEXT("/"), &NodeName, &Path));
+
+	// get end node
+	if (!Path.IsEmpty())
+	{
+		NodeName = MoveTemp(Path);
+		NodeName.Split(TEXT("."), nullptr, &NodeName);
+		CurNode = NodeArray->FindByPredicate(FindNode);
+		if (!CurNode) return;
+	}
+	if (!InIconPath.Split(TEXT("::"), &CurNode->StyleSet, &CurNode->StyleName))
+	{
+		CurNode->StyleSet = TEXT("QEStyleSet");
+		CurNode->StyleName = TEXT("Path.")+ InPath;
+		UQuickEditorService::Get().AddIcon(CurNode->StyleName, InIconPath);
 	}
 }
 
@@ -255,7 +300,8 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
                 	return MenuBuilder.MakeWidget();
                 }),
                 FText::FromString(Node.MenuName),
-                FText::FromString(FuncInfo.ToolTip));
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*Node.StyleSet, *Node.StyleName));
 			}
 			else
 			{
@@ -270,7 +316,7 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
                     NAME_None,
                     FText::FromString(Node.MenuName),
                     FText::FromString(FuncInfo.ToolTip),
-                    FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName));	
+                    FSlateIcon(*Node.StyleSet, *Node.StyleName));	
 			}
 		}
 		else
@@ -284,7 +330,8 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
 					return MenuBuilder.MakeWidget();
 				}),
 				FText::FromString(Node.MenuName),
-				FText::GetEmpty());
+				FText::GetEmpty(),
+				FSlateIcon(*Node.StyleSet, *Node.StyleName));
 		}
 	}
 }
@@ -305,14 +352,14 @@ void FMenuPathResolver::_ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* In
 					FFrame Stack(nullptr, InNode->BoundFunction, nullptr);
 					InNode->BoundFunction->Invoke(nullptr, Stack, nullptr);
 					OnEndPopUp(InBuilder);
-				}), false, FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName));
+				}), false, FSlateIcon(*InNode->StyleSet, *InNode->StyleName));
 		}
 		else
 		{
 			InBuilder.AddMenuEntry(
 				FText::FromString(InNode->MenuName),
 				FText::FromString(FuncInfo.ToolTip),
-				FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName),
+				FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
 	            FUIAction(FExecuteAction::CreateLambda([this, InNode]
 	            {
 					OnEntryCallBegin();
@@ -356,7 +403,7 @@ void FMenuPathResolver::_ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* In
                 // build entry or submenu 
                 _ExtendMenu(InBuilder, &ChildMenu);
             }
-        }));
+        }),false, FSlateIcon(*InNode->StyleSet, *InNode->StyleName));
 	}
 }
 
@@ -416,7 +463,7 @@ void FMenuPathResolver::_ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* In
 			InBuilder.AddMenuEntry(
 				FText::FromString(InNode->MenuName),
 				FText::FromString(FuncInfo.ToolTip),
-				FSlateIcon(*FuncInfo.StyleSet, *FuncInfo.StyleName),
+				FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
 	            FUIAction(FExecuteAction::CreateLambda([this, InNode]
 	            {
 	            	OnEntryCallBegin();

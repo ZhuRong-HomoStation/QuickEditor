@@ -84,7 +84,11 @@ namespace UM
         // [!!!InProgress]:			this functional is in develop, don't use it 
 		QEItemDetail ,
 
-		// call in editor, can with params 
+		// call in editor, can with params
+		// [function type]:			member
+        // [function signature]:	void(...)
+		// [meta value]:			None, it just a mark
+		// [!!!InProgress]:			this functional is in develop, don't use it 		
 		QECallInEditor ,
 	};
 

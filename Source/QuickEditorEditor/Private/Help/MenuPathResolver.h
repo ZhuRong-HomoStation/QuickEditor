@@ -7,6 +7,8 @@ struct FMenuNode
 	FString				MenuName;
 	TArray<FMenuNode>	ChildNodes;
 	UFunction*			BoundFunction;
+	FString				StyleSet;
+	FString				StyleName;
 	
 	void Sort();
 };
@@ -15,8 +17,6 @@ struct FMenuFunctionInfo
 {
 	FString		Path;
 	bool		bIsPopUp = false;
-	FString		StyleSet;
-	FString		StyleName;
 	FString		ToolTip;
 	UClass*		TargetClass;
 };
@@ -28,6 +28,7 @@ public:
 	virtual ~FMenuPathResolver() {}
 	
 	void AddPath(const FString& InPath, UFunction* InFunction, UClass* InTargetClass, bool AddToFunctionInfos = true);
+	void SetPathIcon(const FString& InPath, const FString& InIconPath);
 	void SortPath();
 
 	void Reset(bool ResetFunctionInfos = true)
