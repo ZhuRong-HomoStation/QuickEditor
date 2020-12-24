@@ -26,10 +26,17 @@ namespace QE
 	QUICKEDITOR_API extern FString			ImportFileName;
 	QUICKEDITOR_API extern UObject*			NewCreatedObject;
 
+	// Window
+	QUICKEDITOR_API extern int32					WindowId;
+	QUICKEDITOR_API extern FString					WindowName;
+	QUICKEDITOR_API extern TSharedPtr<SWidget>		WindowContent;
+	QUICKEDITOR_API extern FVector2D				WindowSize;
+	
 	// Commands 
 	QUICKEDITOR_API void CleanState();
 	QUICKEDITOR_API void CleanCommands();
 	QUICKEDITOR_API FQECmdBuffer& GetCmdBuffer();
+
 	
 	namespace Menu
 	{
@@ -54,5 +61,10 @@ namespace QE
 	namespace AssetNew
 	{
 		QUICKEDITOR_API void AssetNewState(bool InEnable);
+	}
+
+	namespace Window
+	{
+		QUICKEDITOR_API void WindowState(bool InEnable);
 	}
 }

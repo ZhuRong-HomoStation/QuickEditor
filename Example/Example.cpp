@@ -50,6 +50,58 @@ void UMenuExample::Example7()
 	QE::Menu::EndSection();
 }
 
+void UMenuExample::Example8()
+{
+	QE::Window::WndName(TEXT("臭臭臭"));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+	QE::Window::WndSize(FVector2D(600, 600));
+}
+
+void UMenuExample::Example9()
+{
+	QE::Window::WndName(TEXT("臭臭臭"));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+}
+
+void UMenuExample::Example10()
+{
+	QE::Window::WndName(TEXT("臭臭臭"));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+	QE::Window::WndSize(FVector2D(600, 600));
+}
+
+void UMenuExample::Example11()
+{
+	QE::Window::WndName(TEXT("臭臭臭_") + FString::FromInt(QE::Window::GetID()));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+	QE::Window::WndSize(FVector2D(600, 600));
+}
+
+void UMenuExample::Example12()
+{
+	QE::Window::WndName(TEXT("臭臭臭_") + FString::FromInt(QE::Window::GetID()));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+}
+
+void UToolBarExample::Example1()
+{
+	QE::Window::WndName(TEXT("臭臭臭"));
+	QE::Window::WndContent(SNew(SImage)
+                    .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                        TEXT("MenuExample.Example2"))));
+	QE::Window::WndSize(FVector2D(600, 600));
+}
+
 void UActorExample::Example1()
 {
 	const TArray<AActor*>& SelectedActors = QE::Actor::GetSelectedActor();

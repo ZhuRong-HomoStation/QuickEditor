@@ -39,5 +39,13 @@ namespace QE
 		QUICKEDITOR_API UObject*		CreatedObject();
 		QUICKEDITOR_API UObject*		CreateDefault();
 	}
+
+	namespace Window
+	{
+		QUICKEDITOR_API int32	GetID();
+		QUICKEDITOR_API void	WndName(const FString& InName);
+		QUICKEDITOR_API void	WndContent(TSharedRef<SWidget> InWidget);
+		QUICKEDITOR_API void	WndSize(FVector2D Size);
+	}
 }
 

@@ -18,15 +18,16 @@ namespace UM
 		// [function type]:			static 
 		// [function signature]:	void(void)
 		// [meta value]:			None, it just a mark
+		// [Conflict]:				QEWindow 
 		QEPopUp ,
 
 		// specify if item will create a window 
         // [function type]:			static 
         // [function signature]:	void(void)
-		// [meta value]:			window type, "[1,2,3...] | [Win/Dock/Modal]", token one mains max window num, default is 1
-		// [meta value]:			eg. "1|Dock" mains create a single dock window, "Win" mains create a single normal window  
-		// [meta value]:			"Modal" mains create a modal window, notice that modal window can only be single window  
-		// [!!!InProgress]:			this functional is in develop, don't use it 
+		// [meta value]:			window type, "[1/2/3/...] | [Win/Dock/Modal]", token one means max window num, default is 1
+		// [meta value]:			eg. "1|Dock" means create a single dock window, "Win" means create a single normal window  
+		// [meta value]:			"Modal" means create a modal window, notice that modal window can only be single window 
+		// [Conflict]:				QEPopUp 
 		QEWindow ,
 	};
 	

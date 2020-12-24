@@ -1,6 +1,14 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 
+enum class EMenuWndType
+{
+	None ,
+	Window ,
+	DockTab ,
+	Modal ,
+};
+
 struct FMenuNode
 {
 	FString				SectionName;
@@ -15,10 +23,12 @@ struct FMenuNode
 
 struct FMenuFunctionInfo
 {
-	FString		Path;
-	bool		bIsPopUp = false;
-	FString		ToolTip;
-	UClass*		TargetClass;
+	FString			Path;
+	bool			bIsPopUp = false;
+	EMenuWndType	WndType = EMenuWndType::None;
+	int32			WndNum;
+	FString			ToolTip;
+	UClass*			TargetClass;
 };
 
 class FMenuPathResolver
@@ -51,14 +61,25 @@ private:
 	void _ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* InNode);
 	void _ExtendRootMenu(FMenuBuilder& InBuilder, const TArray<FMenuNode>* InEntryNodes);
 	void _ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* InNode);
-	
+
+	void _OpenWindow(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo);
+	void _OpenDockTab(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo);
+	void _OpenModalWindow(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo);
+
 public:
+	FString								Name;
+	TMap<UFunction*, TArray<TSharedPtr<SWidget>>>	AllWnds;
 	TArray<FMenuNode>					EntryNodes;
 	TMap<UFunction*, FMenuFunctionInfo>	FunctionInfos;
 };
 
 class FLevelMenuPathResolver : public FMenuPathResolver
 {
+public:
+	FLevelMenuPathResolver()
+	{
+		Name = TEXT("LevelMenu");
+	}
 protected:
 	virtual void OnBeginPopUp(FMenuBuilder& InBuilder) override;
 	virtual void OnEndPopUp(FMenuBuilder& InBuilder) override;
@@ -67,6 +88,10 @@ protected:
 class FActorMenuPathResolver : public FMenuPathResolver
 {
 public:
+	FActorMenuPathResolver()
+	{
+		Name = TEXT("ActorMenu");
+	}
 	void RebuildNodes();
 protected:
 	virtual void OnBeginPopUp(FMenuBuilder& InBuilder) override;
@@ -80,6 +105,10 @@ public:
 class FAssetMenuPathResolver : public FMenuPathResolver
 {
 public:
+	FAssetMenuPathResolver()
+	{
+		Name = TEXT("AssetMenu");
+	}
 	void RebuildNodes();
 protected:
 	virtual void OnBeginPopUp(FMenuBuilder& InBuilder) override;
@@ -92,6 +121,11 @@ public:
 
 class FToolBarPathResolver : public FMenuPathResolver
 {
+public:
+	FToolBarPathResolver()
+	{
+		Name = TEXT("ToolBar");
+	}
 protected:
 	virtual void OnBeginPopUp(FMenuBuilder& InBuilder) override;
 	virtual void OnEndPopUp(FMenuBuilder& InBuilder) override;

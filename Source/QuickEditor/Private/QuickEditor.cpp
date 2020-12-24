@@ -7,6 +7,7 @@
 #define CHECK_STATE_ACTOR		checkf(bIsActorState, TEXT("function in QE::Actor can only called on ActorState"));
 #define CHECK_STATE_ASSET		checkf(bIsAssetState, TEXT("function in QE::Asset can only called on AssetState"));
 #define CHECK_STATE_ASSET_NEW	checkf(bIsAssetNewState, TEXT("function in QE::AssetNew can only called on AssetNewState"));
+#define CHECK_STATE_WINDOW		checkf(bIsWindowState, TEXT("function in QE::Window can only called on WindowState"));
 
 namespace QE
 {
@@ -16,6 +17,7 @@ namespace QE
 	bool bIsActorState = false;
 	bool bIsAssetState = false;
 	bool bIsAssetNewState = false;
+	bool bIsWindowState = false;
 	FQECmdBuffer	CmdBuffer;
 
 	// Actor action  
@@ -31,6 +33,12 @@ namespace QE
 	EObjectFlags	NewObjectFlag;
 	FString			ImportFileName;
 	UObject*		NewCreatedObject = nullptr;
+
+	// Window
+	int32					WindowId;
+	FString					WindowName;
+	TSharedPtr<SWidget>		WindowContent;
+	FVector2D				WindowSize;
 	
 	
 	void CleanState()
@@ -49,6 +57,11 @@ namespace QE
 	FQECmdBuffer& GetCmdBuffer()
 	{
 		return CmdBuffer;
+	}
+
+	void Window::WindowState(bool InEnable)
+	{
+		bIsWindowState = InEnable;
 	}
 
 	void AssetNew::AssetNewState(bool InEnable)
@@ -173,10 +186,35 @@ namespace QE
 		FQEEndSection Cmd;
 		CmdBuffer.Write(Cmd);
 	}
+
+	int32 Window::GetID()
+	{
+		CHECK_STATE_WINDOW;
+		return WindowId;
+	}
+
+	void Window::WndName(const FString& InName)
+	{
+		CHECK_STATE_WINDOW;
+		WindowName = InName;
+	}
+
+	void Window::WndContent(TSharedRef<SWidget> InWidget)
+	{
+		CHECK_STATE_WINDOW;
+		WindowContent = InWidget;
+	}
+
+	void Window::WndSize(FVector2D Size)
+	{
+		CHECK_STATE_WINDOW;
+		WindowSize = Size;
+	}
 }
 
 #undef CHECK_STATE_MENU		
 #undef CHECK_STATE_DETAIL		
 #undef CHECK_STATE_ACTOR		
 #undef CHECK_STATE_ASSET		
-#undef CHECK_STATE_ASSET_NEW	
+#undef CHECK_STATE_ASSET_NEW
+#undef CHECK_STATE_WINDOW

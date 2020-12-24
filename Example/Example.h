@@ -35,6 +35,27 @@ public:
 	// Example7: Custom pop up 
 	UFUNCTION(meta=(QEMenuItem="QEExample/Cate1.Section/CateC.Example7", QEPopUp))
 	static void Example7();
+
+	// Example8: Custom Window
+	UFUNCTION(meta=(QEMenuItem="QEExample/Window/Window.OpenWindow", QEWindow="Win"))
+	static void Example8();
+
+	// Example9: Custom DockWindow 
+	UFUNCTION(meta=(QEMenuItem="QEExample/Window/Dock.OpenDockWindow", QEWindow="Dock"))
+    static void Example9();
+
+	// Example10: Custom Modal Window 
+	UFUNCTION(meta=(QEMenuItem="QEExample/Window/Modal.OpenModalWindow", QEWindow="Modal"))
+    static void Example10();
+
+	// Example11: Custom Mult Window 
+	UFUNCTION(meta=(QEMenuItem="QEExample/Window/Window.OpenMultWindow", QEWindow="3|Win"))
+    static void Example11();
+
+	// Example12: Custom Mult DockWindow 
+	UFUNCTION(meta=(QEMenuItem="QEExample/Window/Dock.OpenMultDockWindow", QEWindow="3|Dock"))
+    static void Example12();
+ 
 };
 
 UCLASS()
@@ -43,8 +64,8 @@ class UToolBarExample : public UObject
 	GENERATED_BODY()
 public:
 	// Example1: Toolbar button 
-	UFUNCTION(meta=(QEToolBar="Button", QEIcon="QuickEditor/Resources/Icon128.png", QEIconSize="50, 50"))
-    static void Example1(){ UKismetSystemLibrary::PrintString(GWorld, TEXT("Example1")); }
+	UFUNCTION(meta=(QEToolBar="Button", QEIcon="QuickEditor/Resources/Icon128.png", QEIconSize="50, 50", QEWindow="Modal"))
+    static void Example1();
 
 	// Example2: Toolbar Popup 
 	UFUNCTION(meta=(QEToolBar="PopUp/Cate1.Item", QEIcon="QuickEditor/Resources/Icon128.png"))

@@ -86,6 +86,18 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 					StyleName = InFunction->GetOuter()->GetName() + TEXT(".") + InFunction->GetName();
 				}
 			}
+
+			FString WndNum, WndType;
+			if (InFunction->HasMetaData(TEXT("QEWindow")))
+			{
+				FString WndConfig = InFunction->GetMetaData(TEXT("QEWindow"));
+				if (!WndConfig.Split(TEXT("|"), &WndNum, &WndType))
+				{
+					WndNum = TEXT("1");
+					WndType = MoveTemp(WndConfig);
+				}
+			}
+			
 			FMenuFunctionInfo Info;
 			Info.Path = InPath;
 			CurNode->StyleSet = MoveTemp(StyleSet);
@@ -93,6 +105,27 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 			Info.TargetClass = InTargetClass;
 			Info.ToolTip = InFunction->GetMetaData("ToolTip");
 			Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
+			Info.WndNum = FCString::Atoi(*WndNum);
+			if (WndType == TEXT("Win"))
+			{
+				Info.WndType = EMenuWndType::Window;
+			}
+			else if (WndType == TEXT("Dock"))
+			{
+				Info.WndType = EMenuWndType::DockTab;
+			}
+			else if (WndType == TEXT("Modal"))
+			{
+				Info.WndType = EMenuWndType::Modal;
+			}
+			else if (Info.WndNum != 0)
+			{
+				checkNoEntry();
+			}
+			if (Info.WndNum > 0)
+			{
+				AllWnds.Add(InFunction).SetNum(Info.WndNum);
+			}
 			FunctionInfos.Add(InFunction, MoveTemp(Info));
 		}
 		return;
@@ -164,6 +197,17 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 	// add to function map
 	if (AddToFunctionInfos)
 	{
+		FString WndNum, WndType;
+		if (InFunction->HasMetaData(TEXT("QEWindow")))
+		{
+			FString WndConfig = InFunction->GetMetaData(TEXT("QEWindow"));
+			if (!WndConfig.Split(TEXT("|"), &WndNum, &WndType))
+			{
+				WndNum = TEXT("1");
+				WndType = MoveTemp(WndConfig);
+			}
+		}
+		
 		FMenuFunctionInfo Info;
 		Info.Path = InPath;
 		CurNode->StyleSet = MoveTemp(StyleSet);
@@ -171,6 +215,27 @@ void FMenuPathResolver::AddPath(const FString& InPath, UFunction* InFunction, UC
 		Info.TargetClass = InTargetClass;
 		Info.ToolTip = InFunction->GetMetaData("ToolTip");
 		Info.bIsPopUp = InFunction->HasMetaData(TEXT("QEPopUp"));
+		Info.WndNum = FCString::Atoi(*WndNum);
+		if (WndType == TEXT("Win"))
+		{
+			Info.WndType = EMenuWndType::Window;
+		}
+		else if (WndType == TEXT("Dock"))
+		{
+			Info.WndType = EMenuWndType::DockTab;
+		}
+		else if (WndType == TEXT("Modal"))
+		{
+			Info.WndType = EMenuWndType::Modal;
+		}
+		else if (Info.WndNum != 0)
+		{
+			checkNoEntry();
+		}
+		if (Info.WndNum > 0)
+		{
+			AllWnds.Add(InFunction).SetNum(Info.WndNum);
+		}
         FunctionInfos.Add(InFunction, MoveTemp(Info));
 	}
 }
@@ -303,6 +368,37 @@ void FMenuPathResolver::_ExtendToolBar(FToolBarBuilder& InBuilder)
                 FText::FromString(FuncInfo.ToolTip),
                 FSlateIcon(*Node.StyleSet, *Node.StyleName));
 			}
+			else if (FuncInfo.WndNum > 0)
+			{
+				switch (FuncInfo.WndType)
+				{
+				case EMenuWndType::Window:
+					InBuilder.AddToolBarButton(
+                    FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenWindow, const_cast<const FMenuNode*>(&Node), &FuncInfo)),
+                    NAME_None,
+                    FText::FromString(Node.MenuName),
+                    FText::FromString(FuncInfo.ToolTip),
+                    FSlateIcon(*Node.StyleSet, *Node.StyleName));	
+					break;
+				case EMenuWndType::DockTab:
+					InBuilder.AddToolBarButton(
+                    FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenDockTab, const_cast<const FMenuNode*>(&Node), &FuncInfo)),
+                    NAME_None,
+                    FText::FromString(Node.MenuName),
+                    FText::FromString(FuncInfo.ToolTip),
+                    FSlateIcon(*Node.StyleSet, *Node.StyleName));	
+					break;
+				case EMenuWndType::Modal:
+					InBuilder.AddToolBarButton(
+                    FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenModalWindow, const_cast<const FMenuNode*>(&Node), &FuncInfo)),
+                    NAME_None,
+                    FText::FromString(Node.MenuName),
+                    FText::FromString(FuncInfo.ToolTip),
+                    FSlateIcon(*Node.StyleSet, *Node.StyleName));	
+					break;
+				default: checkNoEntry();
+				}
+			}
 			else
 			{
 				InBuilder.AddToolBarButton(
@@ -353,6 +449,34 @@ void FMenuPathResolver::_ExtendMenu(FMenuBuilder& InBuilder, const FMenuNode* In
 					InNode->BoundFunction->Invoke(nullptr, Stack, nullptr);
 					OnEndPopUp(InBuilder);
 				}), false, FSlateIcon(*InNode->StyleSet, *InNode->StyleName));
+		}
+		else if (FuncInfo.WndNum > 0)
+		{
+			switch (FuncInfo.WndType)
+			{
+			case EMenuWndType::Window:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenWindow, InNode, &FuncInfo)));
+				break;
+			case EMenuWndType::DockTab:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenDockTab, InNode, &FuncInfo)));
+				break;
+			case EMenuWndType::Modal:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenModalWindow, InNode, &FuncInfo)));
+				break;
+			default: checkNoEntry();
+			}
 		}
 		else
 		{
@@ -458,6 +582,34 @@ void FMenuPathResolver::_ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* In
 					OnEndPopUp(InBuilder);
 				}));
 		}
+		else if (FuncInfo.WndNum > 0)
+		{
+			switch (FuncInfo.WndType)
+			{
+			case EMenuWndType::Window:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenWindow, const_cast<const FMenuNode*>(InNode), &FuncInfo)));
+				break;
+			case EMenuWndType::DockTab:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenDockTab, const_cast<const FMenuNode*>(InNode), &FuncInfo)));
+				break;
+			case EMenuWndType::Modal:
+				InBuilder.AddMenuEntry(
+                FText::FromString(InNode->MenuName),
+                FText::FromString(FuncInfo.ToolTip),
+                FSlateIcon(*InNode->StyleSet, *InNode->StyleName),
+                FUIAction(FExecuteAction::CreateRaw(this, &FMenuPathResolver::_OpenModalWindow, const_cast<const FMenuNode*>(InNode), &FuncInfo)));
+				break;
+			default: checkNoEntry();
+			}
+		}
 		else
 		{
 			InBuilder.AddMenuEntry(
@@ -511,6 +663,126 @@ void FMenuPathResolver::_ExtendMenuBar(FMenuBarBuilder& InBuilder, FMenuNode* In
             }
         }));
 	}
+}
+
+void FMenuPathResolver::_OpenWindow(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo)
+{
+	// search wnd 
+	auto& WndArr = AllWnds[InNode->BoundFunction];
+	QE::WindowId = -1;
+	for (int32 i = 0; i < InFuncInfo->WndNum; ++i)
+	{
+		if (!WndArr[i].IsValid())
+		{
+			QE::WindowId = i;
+			break;
+		}
+	}
+
+	// no wnd
+	if (QE::WindowId == -1)
+	{
+		StaticCastSharedPtr<SWindow>(WndArr[0])->BringToFront();
+		return;
+	}
+
+	// invoke 
+	QE::Window::WindowState(true);
+	FFrame Stack(nullptr, InNode->BoundFunction, nullptr);
+	InNode->BoundFunction->Invoke(nullptr, Stack, nullptr);
+	QE::Window::WindowState(false);
+	FString WndName = MoveTemp(QE::WindowName);
+	TSharedPtr<SWidget> WndContent = MoveTemp(QE::WindowContent);
+
+	// create wnd
+	auto NewWnd = SNew(SWindow)
+    .Title(FText::FromString(WndName))
+    .SizingRule(ESizingRule::UserSized)
+    .ClientSize(QE::WindowSize)
+    [
+        WndContent.ToSharedRef()
+    ];
+	NewWnd->SetOnWindowClosed(FOnWindowClosed::CreateLambda([&WndArr, Idx=QE::WindowId](const TSharedRef<SWindow>&)
+    {
+        WndArr[Idx].Reset();
+    }));
+
+	// storage and add show
+	WndArr[QE::WindowId] = NewWnd;
+	FSlateApplication::Get().AddWindow(NewWnd); 
+}
+
+void FMenuPathResolver::_OpenDockTab(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo)
+{
+	// search wnd 
+    auto& WndArr = AllWnds[InNode->BoundFunction];
+    QE::WindowId = -1;
+    for (int32 i = 0; i < InFuncInfo->WndNum; ++i)
+    {
+        if (!WndArr[i].IsValid())
+        {
+            QE::WindowId = i;
+            break;
+        }
+    }
+
+    // no wnd
+    if (QE::WindowId == -1)
+    {
+        auto Wnd = StaticCastSharedPtr<SDockTab>(WndArr[0])->GetParentWindow();
+    	if (Wnd) Wnd->BringToFront();
+        StaticCastSharedPtr<SDockTab>(WndArr[0])->ActivateInParent(ETabActivationCause::SetDirectly);
+        StaticCastSharedPtr<SDockTab>(WndArr[0])->FlashTab();
+        return;
+    }
+    
+    // invoke 
+    QE::Window::WindowState(true);
+    FFrame Stack(nullptr, InNode->BoundFunction, nullptr);
+    InNode->BoundFunction->Invoke(nullptr, Stack, nullptr);
+    QE::Window::WindowState(false);
+    FString WndName = MoveTemp(QE::WindowName);
+    TSharedPtr<SWidget> WndContent = MoveTemp(QE::WindowContent);
+
+    // create tab 
+	auto NewTab = SNew(SDockTab)
+    .Label(FText::FromString(WndName))
+    .TabRole(ETabRole::NomadTab)
+    [
+        WndContent.ToSharedRef()
+    ];
+    NewTab->SetOnTabClosed(SDockTab::FOnTabClosedCallback::CreateLambda([&WndArr, Idx=QE::WindowId](TSharedRef<SDockTab>)
+    {
+        WndArr[Idx].Reset();
+    }));
+
+    // storage and show 
+    FName PlaceholderId(TEXT("StandaloneToolkit"));
+    WndArr[QE::WindowId] = NewTab;
+    TSharedPtr<FTabManager::FSearchPreference> SearchPreference = MakeShareable(new FTabManager::FRequireClosedTab());
+    FGlobalTabmanager::Get()->InsertNewDocumentTab(PlaceholderId, *SearchPreference, NewTab);
+}
+
+void FMenuPathResolver::_OpenModalWindow(const FMenuNode* InNode, FMenuFunctionInfo* InFuncInfo)
+{
+	// invoke 
+	QE::Window::WindowState(true);
+	QE::WindowId = 0;
+	FFrame Stack(nullptr, InNode->BoundFunction, nullptr);
+	InNode->BoundFunction->Invoke(nullptr, Stack, nullptr);
+	QE::Window::WindowState(false);
+	FString WndName = MoveTemp(QE::WindowName);
+	TSharedPtr<SWidget> WndContent = MoveTemp(QE::WindowContent);
+
+	// create modal wnd 
+	TSharedPtr<SWindow> NewWnd = SNew(SWindow)
+    .Title(FText::FromString(WndName))
+    .SizingRule(ESizingRule::UserSized)
+    .ClientSize(QE::WindowSize)
+    [
+        WndContent.ToSharedRef()
+    ];
+	FSlateApplication::Get().AddModalWindow(NewWnd.ToSharedRef(), nullptr);
 }
 
 void FLevelMenuPathResolver::OnBeginPopUp(FMenuBuilder& InBuilder)
