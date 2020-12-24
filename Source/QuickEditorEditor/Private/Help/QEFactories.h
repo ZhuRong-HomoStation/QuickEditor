@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
+
+#include "EditorReimportHandler.h"
+
 #include "QEFactories.generated.h"
 
 UCLASS(CustomConstructor)
@@ -17,7 +20,7 @@ public:
 };
 
 UCLASS(CustomConstructor)
-class UQEFactoryFile : public UFactory
+class UQEFactoryFile : public UFactory, public FReimportHandler
 {
 	GENERATED_BODY()
 public:
@@ -25,6 +28,12 @@ public:
 public:
 	virtual void GetSupportedFileExtensions(TArray<FString>& OutExtensions) const override;
 	virtual UObject* FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
+
+	// ~Begin FReimportHandler API 
+	virtual bool CanReimport(UObject* Obj, TArray<FString>& OutFilenames) override;
+	virtual void SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths) override;
+	virtual EReimportResult::Type Reimport(UObject* Obj) override;
+	// ~End FReimportHandler API 
 public:
 	static TMap<UClass*, UFunction*> NewFunctionMap;
 	static TMap<UClass*, UClass*> SupportClassMap;

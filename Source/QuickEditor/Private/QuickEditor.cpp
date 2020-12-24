@@ -33,6 +33,7 @@ namespace QE
 	EObjectFlags	NewObjectFlag;
 	FString			ImportFileName;
 	UObject*		NewCreatedObject = nullptr;
+	bool			bIsReimportAsset = false;
 
 	// Window
 	int32					WindowId;
@@ -146,12 +147,19 @@ namespace QE
 	UObject* AssetNew::CreateDefault()
 	{
 		CHECK_STATE_ASSET_NEW;
+		if (bIsReimportAsset) return NewCreatedObject;
 		NewCreatedObject = NewObject<UObject>(
             NewObjectOuter,
             NewObjectClass,
             NewObjectName,
             NewObjectFlag);
 		return NewCreatedObject;
+	}
+
+	bool AssetNew::IsReimport()
+	{
+		CHECK_STATE_ASSET_NEW;
+		return bIsReimportAsset;
 	}
 
 	void Menu::AddEntry(const FString& InEntryName, const FString& InEntryIcon, const FSimpleDelegate& InEntryEvent)

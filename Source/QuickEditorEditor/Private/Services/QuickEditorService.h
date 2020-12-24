@@ -40,7 +40,6 @@ private:
 	void _InitAssetNew();
 	void _InitDetail();
 
-	// TODO Reimport FReimportManager::Instance()->OnPreReimport()
 	// TODO Detail
 
 private:

@@ -202,4 +202,7 @@ void UNewAssetExample::ImportAsset()
 {
 	UTextAsset* Asset = (UTextAsset*)QE::AssetNew::CreateDefault();
 	FFileHelper::LoadFileToString(Asset->Text, *QE::AssetNew::GetImportFilePath());
+
+	// use QE::AssetNew::IsReimport() control logic when import or reimport
+	// QE::AssetNew::CreateDefault() will process this case automatic 
 }

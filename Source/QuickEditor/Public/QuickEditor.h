@@ -13,9 +13,12 @@ namespace QE
 
 	namespace Detail
 	{
+		QUICKEDITOR_API TArray<UObject*> GetSelectedObjects();
 		QUICKEDITOR_API void HideParent(const FString& InName);
 		QUICKEDITOR_API void ShowParent(const FString& InName);
 		QUICKEDITOR_API void HideCategory(const FString& InName);
+		QUICKEDITOR_API void EditCategory(const FString& InName, int32 InPriority /*0-4, see also ECategoryPriority*/);
+		QUICKEDITOR_API void AddWidget(TSharedPtr<SWidget> InWidget);
 	}
 	
 	namespace Actor
@@ -38,6 +41,7 @@ namespace QE
 		QUICKEDITOR_API void			CreatedObject(UObject* InObject);
 		QUICKEDITOR_API UObject*		CreatedObject();
 		QUICKEDITOR_API UObject*		CreateDefault();
+		QUICKEDITOR_API bool			IsReimport();
 	}
 
 	namespace Window

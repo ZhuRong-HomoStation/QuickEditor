@@ -22,6 +22,10 @@ public:
 		return Config;
 	}
 
+	// Import paths
+	UPROPERTY(Config)
+	TMap<FString, FString>		ImportFilePaths;
+
 	// main menu path icons
 	UPROPERTY(EditAnywhere, Config)
 	TMap<FString, FString>		MainMenuPathIcons;

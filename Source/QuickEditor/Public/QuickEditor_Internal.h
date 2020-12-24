@@ -9,7 +9,6 @@
 
 class FQECmdBuffer;
 
-// TODO: remove command buffer 
 namespace QE
 {
 	// Actor actions 
@@ -25,6 +24,7 @@ namespace QE
 	QUICKEDITOR_API extern EObjectFlags		NewObjectFlag;
 	QUICKEDITOR_API extern FString			ImportFileName;
 	QUICKEDITOR_API extern UObject*			NewCreatedObject;
+	QUICKEDITOR_API extern bool				bIsReimportAsset;
 
 	// Window
 	QUICKEDITOR_API extern int32					WindowId;

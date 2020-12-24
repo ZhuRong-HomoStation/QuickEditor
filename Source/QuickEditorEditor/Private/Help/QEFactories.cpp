@@ -3,6 +3,7 @@
 #include "EditorReimportHandler.h"
 #include "QuickEditor.h"
 #include "QuickEditor_Internal.h"
+#include "Config/QuickEditorConfig.h"
 
 TMap<UClass*, UFunction*> UQEFactoryNew::NewFunctionMap;
 TMap<UClass*, UClass*> UQEFactoryNew::SupportClassMap;
@@ -100,6 +101,48 @@ UObject* UQEFactoryFile::FactoryCreateFile(
 	Func->Invoke(nullptr, Stack, nullptr);
 	
 	QE::AssetNew::AssetNewState(false);
+
+	UQuickEditorConfig::Get()->ImportFilePaths.Add(QE::NewCreatedObject->GetPathName(), Filename);
+	UQuickEditorConfig::Get()->SaveConfig();
 	
 	return QE::NewCreatedObject;
+}
+
+bool UQEFactoryFile::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
+{
+	if (Obj->GetClass() == SupportedClass)
+	{
+		FString* Path = UQuickEditorConfig::Get()->ImportFilePaths.Find(Obj->GetPathName());
+		if (Path)
+		{
+			OutFilenames.Add(*Path);
+			return true;
+		}
+	}
+	return false;
+}
+
+void UQEFactoryFile::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
+{
+	UQuickEditorConfig::Get()->ImportFilePaths.Add(Obj->GetPathName(), NewReimportPaths[0]);
+	UQuickEditorConfig::Get()->SaveConfig();
+}
+
+EReimportResult::Type UQEFactoryFile::Reimport(UObject* Obj)
+{
+	if (Obj->GetClass() != SupportedClass) return EReimportResult::Failed;
+	UFunction* ImportFunction = NewFunctionMap[GetClass()];
+
+	QE::bIsReimportAsset = true;
+	QE::NewCreatedObject = Obj;
+	QE::ImportFileName = UQuickEditorConfig::Get()->ImportFilePaths[Obj->GetPathName()];
+	QE::AssetNew::AssetNewState(true);
+	
+	FFrame Stack(nullptr, ImportFunction, nullptr);
+	ImportFunction->Invoke(nullptr, Stack, nullptr);
+
+	QE::AssetNew::AssetNewState(false);
+	QE::bIsReimportAsset = false;
+
+	return EReimportResult::Succeeded;
 }

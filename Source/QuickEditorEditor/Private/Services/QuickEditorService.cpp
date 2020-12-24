@@ -2,6 +2,7 @@
 #include "AssetToolsModule.h"
 #include "AssetTypeCategories.h"
 #include "ContentBrowserModule.h"
+#include "EditorReimportHandler.h"
 #include "LevelEditor.h"
 #include "Logging.h"
 #include "QuickEditor.h"
@@ -70,7 +71,7 @@ void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
 	// init style set 
 	StyleSet = MakeShareable(new FSlateStyleSet(QEPrivate::StyleSetName));
 	FSlateStyleRegistry::RegisterSlateStyle(*StyleSet);
-
+	
 	_LoadIcons();
 	_InitPaths();
 	_InitPathIcons();
@@ -336,7 +337,6 @@ void UQuickEditorService::_InitToolBar()
 
 void UQuickEditorService::_InitAssetNew()
 {
-
 	// load asset tools 
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 
@@ -452,11 +452,12 @@ void UQuickEditorService::_InitAssetNew()
 	// build factories
 	for (auto& Item : ClassFactoryMap)
 	{
-		// add toolkit
+		// add AssetTypeAction 
 		TSharedPtr<FQEAssetTypeAction> AssetAction = MakeShared<FQEAssetTypeAction>();
 		AssetAction->Name = Item.Value.NewItemName;
 		AssetAction->SupportClass = Item.Key;
 		AssetAction->AssetCategory = Item.Value.Category;
+		AssetAction->bIsImportedAsset = Item.Value.FileFactory != nullptr;
 		AssetTools.RegisterAssetTypeActions(AssetAction.ToSharedRef());
 		
 		if (Item.Value.NewFactory)
