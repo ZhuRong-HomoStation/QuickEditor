@@ -103,7 +103,7 @@ UObject* UQEFactoryFile::FactoryCreateFile(
 	QE::AssetNew::AssetNewState(false);
 
 	UQuickEditorConfig::Get()->ImportFilePaths.Add(QE::NewCreatedObject->GetPathName(), Filename);
-	UQuickEditorConfig::Get()->SaveConfig();
+	UQuickEditorConfig::Get()->SaveConfig(CPF_Config, *UQuickEditorConfig::Get()->GetDefaultConfigFilename());
 	
 	return QE::NewCreatedObject;
 }
@@ -125,7 +125,7 @@ bool UQEFactoryFile::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
 void UQEFactoryFile::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
 {
 	UQuickEditorConfig::Get()->ImportFilePaths.Add(Obj->GetPathName(), NewReimportPaths[0]);
-	UQuickEditorConfig::Get()->SaveConfig();
+	UQuickEditorConfig::Get()->SaveConfig(CPF_Config, *UQuickEditorConfig::Get()->GetDefaultConfigFilename());
 }
 
 EReimportResult::Type UQEFactoryFile::Reimport(UObject* Obj)
