@@ -15,13 +15,9 @@ namespace QE
 	{
 		QUICKEDITOR_API const TArray<UObject*>& GetSelectedObjects();
 
-		QUICKEDITOR_API void HideParent(const FString& InName);
-		QUICKEDITOR_API void ShowParent(const FString& InName);
-
 		QUICKEDITOR_API void HideCategory(const FString& InCategory);
 		QUICKEDITOR_API void EditCategory(const FString& InCategory, int32 InPriority /*0-4, see also ECategoryPriority*/);
 
-		// !!!!!don't use functions about properties, they are invalid for a while  
 		QUICKEDITOR_API void HideProperty(const FString& InPropertyName);
 		QUICKEDITOR_API void EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget);
 		QUICKEDITOR_API void EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget, const FString& InOverrideName);
@@ -30,6 +26,11 @@ namespace QE
 		QUICKEDITOR_API void AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InWidget);
 		QUICKEDITOR_API void AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InWidget, const FString& InName);
 		QUICKEDITOR_API void AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InValueWidget, TSharedPtr<SWidget> InNameWidget);
+
+		QUICKEDITOR_API void AddProperty(const FString& InPropertyName);
+		QUICKEDITOR_API void AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget);
+		QUICKEDITOR_API void AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget, const FString& InOverrideName);
+		QUICKEDITOR_API void AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InValueWidget, TSharedPtr<SWidget> InNameWidget);
 	}
 	
 	namespace Actor

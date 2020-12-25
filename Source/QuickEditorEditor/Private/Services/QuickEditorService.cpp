@@ -509,6 +509,8 @@ void UQuickEditorService::_InitAssetNew()
 
 void UQuickEditorService::_InitDetail()
 {
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
 	// collect classes to detail customization map
 	for (TObjectIterator<UClass> ItClass; ItClass; ++ItClass)
 	{
@@ -527,6 +529,10 @@ void UQuickEditorService::_InitDetail()
 			{
 				CHECK_STATIC(ItFunc);
 				DetailCustomizationMap.Add(TargetClass, *ItFunc);
+
+				// add per class instance customization 
+				PropertyEditorModule.RegisterCustomClassLayout(TargetClass->GetFName(),
+					FOnGetDetailCustomizationInstance::CreateStatic(&FQEDetailCustomizePerClass::MakeInstance, TargetClass));
 			}
 			else if (ItFunc->HasMetaData(TEXT("QEItemDetail")))
 			{

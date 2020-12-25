@@ -228,7 +228,7 @@ void UCustomDetailExampleA::CustomDetailExample()
 	QE::Detail::HideCategory(TEXT("Actor"));
 	
 	// edit category
-	QE::Detail::EditCategory(TEXT("臭臭臭"), 0);
+	QE::Detail::EditCategory(TEXT("臭臭臭"), 2);
 
 	// widget we will use 
 	TSharedRef<SWidget> SmellyMan =
@@ -262,28 +262,35 @@ void UExampleActorDetail::CustomDetailExample()
             SNew(SImage)
             .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
                                                            TEXT("MenuExample.Example2")))
-        ];
+        ]; 
 	
-	// Hide parent detail customize 
-	QE::Detail::HideParent(TEXT("Object"));
+	// Hide property
+	QE::Detail::HideProperty(TEXT("PropertyA"));
 
-	// !!!!!don't use functions about properties, they are invalid for a while  
+	// Edit property whole row 
+	QE::Detail::EditProperty(TEXT("PropertyB"), SmellyMan);
 
-	// Hide Property
-	QE::Detail::HideProperty(TEXT("ExampleActor.PropertyA"));
+	// Edit property with name  
+	QE::Detail::EditProperty(TEXT("PropertyC"), SmellyMan, TEXT("CCCCCCC"));
 
-	// Edit Property whole row 
-	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyB"), SmellyMan);
+	// Edit property with custom name widget
+	QE::Detail::EditProperty(TEXT("PropertyD"), SmellyMan, SNew(SButton)[SmellyMan]);
 
-	// Edit Property with name  
-	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyC"), SmellyMan, TEXT("CCCCCCC"));
+	// Bring up CateA to first
+	QE::Detail::EditCategory(TEXT("CateA"), 0);
+	
+	// Edit new cate
+	QE::Detail::EditCategory(TEXT("NewCate"), 0);
 
-	// Edit Property with custom name widget
-	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyC"), SmellyMan, SNew(SButton)[SmellyMan]);
-}
+	// Add Property
+	QE::Detail::AddProperty(TEXT("PropertyE"));
 
-void AExampleActorChild::CustomDetailExample()
-{
-	// Show parent(witch we hide it in AExampleActor)
-	QE::Detail::ShowParent(TEXT("Object"));
+	// Add property whole row
+	QE::Detail::AddProperty(TEXT("PropertyF"), SmellyMan);
+
+	// Add property with name
+	QE::Detail::AddProperty(TEXT("PropertyG"), SmellyMan, TEXT("GGGGGGGG"));
+	
+	// Add property whit custom name widget
+	QE::Detail::AddProperty(TEXT("PropertyH"), SmellyMan, SNew(SButton)[SmellyMan]);	
 }

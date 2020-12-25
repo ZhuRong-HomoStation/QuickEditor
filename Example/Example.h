@@ -159,6 +159,12 @@ public:
 	int32			PropertyE;
 	UPROPERTY(EditAnywhere, Category="CateB")
 	int32			PropertyF;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyG;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyH;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyI;
 };
 
 // Custom all object's Detail
@@ -174,16 +180,6 @@ public:
 // Custom Example actor detail 
 UCLASS(meta=(QEReroute="ExampleActor"))
 class UExampleActorDetail : public  UObject
-{
-	GENERATED_BODY()
-public:
-	UFUNCTION(meta=(QEDetail))
-    static void CustomDetailExample();
-};
-
-// Custom detail in class
-UCLASS()
-class AExampleActorChild : public AExampleActor
 {
 	GENERATED_BODY()
 public:

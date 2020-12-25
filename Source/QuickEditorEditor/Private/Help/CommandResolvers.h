@@ -14,17 +14,13 @@ namespace QEPrivate
 	class FDetailCmdResolver
 	{
 	public:
-		FDetailCmdResolver(IDetailLayoutBuilder* InDetailBuilder, IPropertyTypeCustomizationUtils* InCustomizationUtils);
+		FDetailCmdResolver(IDetailLayoutBuilder* InDetailBuilder);
 		void Reset();
-		void CleanUp();
 		void ResolveCommands();
-		bool QueryShowState(const FString& ClassName);
 	
-	private:
-		IDetailLayoutBuilder*	DetailBuilder;
-		IPropertyTypeCustomizationUtils*	CustomizationUtils;
-		IDetailCategoryBuilder*	CurCategoryBuilder;
-		TMap<FString, bool>		OverrideStateMap;
+	public:
+		IDetailLayoutBuilder*		DetailBuilder;
+		IDetailCategoryBuilder*		CurCategoryBuilder;
 	};
 
 	void _ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd, int32 CommandID);

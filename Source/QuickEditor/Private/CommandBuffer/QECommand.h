@@ -10,13 +10,12 @@ enum class EQECommand
 	Menu_BeginSection ,
 	Menu_EndSection ,
 
-	Detail_HideParent ,
-	Detail_ShowParent ,
 	Detail_HideCategory ,
 	Detail_EditCategory ,
 	Detail_HideProperty ,
 	Detail_EditProperty ,
 	Detail_AddWidget ,
+	Detail_AddProperty ,
 };
 
 struct FQECommand
@@ -49,18 +48,6 @@ struct FQEBeginSection : public FQECommand
 struct FQEEndSection : public FQECommand
 {
 	static constexpr auto Type = EQECommand::Menu_EndSection;
-};
-
-struct FQEHideParent : public FQECommand
-{
-	static constexpr auto Type = EQECommand::Detail_HideParent;
-	FString		ParentName;
-};
-
-struct FQEShowParent : public FQECommand
-{
-	static constexpr auto Type = EQECommand::Detail_ShowParent;
-	FString		ParentName;
 };
 
 struct FQEHideCategory : public FQECommand
@@ -100,4 +87,12 @@ struct FQEDetailAddWidget : public FQECommand
 	TSharedPtr<SWidget>		ValueWidget;
 };
 
+struct FQEAddProperty : public FQECommand
+{
+	static constexpr auto Type = EQECommand::Detail_AddProperty;
+	FString					PropertyName;
+	FString					OverrideName;
+	TSharedPtr<SWidget>		NameWidget;
+	TSharedPtr<SWidget>		ValueWidget;
+};
 

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "EditorSubsystem.h"
+#include "Customization/QEDetailCustomize.h"
 #include "Factories/Factory.h"
 #include "Help/MenuPathResolver.h"
 #include "Styling/SlateStyle.h"
@@ -39,9 +40,6 @@ private:
 
 	void _InitAssetNew();
 	void _InitDetail();
-
-	// TODO Detail
-
 public:
 	TMap<UClass*, UFunction*>	DetailCustomizationMap;
 	TMap<UClass*, UFunction*>	PropertyCustomizationMap;

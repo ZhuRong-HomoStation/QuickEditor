@@ -227,22 +227,6 @@ namespace QE
 		return SelectedObjects;
 	}
 
-	void Detail::HideParent(const FString& InName)
-	{
-		CHECK_STATE_DETAIL;
-		FQEHideParent Cmd;
-		Cmd.ParentName = InName;
-		CmdBuffer.Write(Cmd);
-	}
-
-	void Detail::ShowParent(const FString& InName)
-	{
-		CHECK_STATE_DETAIL;
-		FQEShowParent Cmd;
-		Cmd.ParentName = InName;
-		CmdBuffer.Write(Cmd);
-	}
-
 	void Detail::HideCategory(const FString& InCategory)
 	{
 		CHECK_STATE_DETAIL;
@@ -326,6 +310,44 @@ namespace QE
 		Cmd.SearchName = InSearchName;
 		Cmd.NameWidget = InNameWidget;
 		Cmd.ValueWidget = InValueWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddProperty(const FString& InPropertyName)
+	{
+		CHECK_STATE_DETAIL;
+		FQEAddProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEAddProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.ValueWidget = InWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget, const FString& InOverrideName)
+	{
+		CHECK_STATE_DETAIL;
+		FQEAddProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.ValueWidget = InWidget;
+		Cmd.OverrideName = InOverrideName;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddProperty(const FString& InPropertyName, TSharedPtr<SWidget> InValueWidget,
+		TSharedPtr<SWidget> InNameWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEAddProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.ValueWidget = InValueWidget;
+		Cmd.NameWidget = InNameWidget;
 		CmdBuffer.Write(Cmd);
 	}
 }
