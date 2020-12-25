@@ -186,3 +186,24 @@ public:
 	UFUNCTION(meta=(QEDetail))
     static void CustomDetailExample();
 };
+
+// Example struct
+USTRUCT()
+struct FExampleStruct
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyA;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyB;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyC;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyD;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyE;
+};
+
+// Example  
+

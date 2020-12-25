@@ -890,3 +890,41 @@ void FToolBarPathResolver::OnEndPopUp(FMenuBuilder& InBuilder)
 	QEPrivate::ResolveMenuCommands(InBuilder);
 	QE::CleanCommands();
 }
+
+void FAssetEditorMenuPathResolver::RebuildNodes()
+{
+	Reset(false);
+	for (auto& Info : FunctionInfos)
+	{
+		if (CurrentClass->IsChildOf(Info.Value.TargetClass))
+		{
+			AddPath(Info.Value.Path, Info.Key, Info.Value.TargetClass, false);
+		}
+	}
+}
+
+void FAssetEditorMenuPathResolver::OnBeginPopUp(FMenuBuilder& InBuilder)
+{
+	QE::Menu::MenuState(true);
+	OnEntryCallBegin();
+}
+
+void FAssetEditorMenuPathResolver::OnEndPopUp(FMenuBuilder& InBuilder)
+{
+	OnEntryCallEnd();
+	QE::CleanState();
+	QEPrivate::ResolveAssetCommands(InBuilder);
+	QE::CleanCommands();
+}
+
+void FAssetEditorMenuPathResolver::OnEntryCallBegin()
+{
+	// TODO: collect selected assets 
+	QE::Asset::AssetState(true);
+}
+
+void FAssetEditorMenuPathResolver::OnEntryCallEnd()
+{
+	QE::SelectedAssets.Reset();
+	QE::Asset::AssetState(false);
+}

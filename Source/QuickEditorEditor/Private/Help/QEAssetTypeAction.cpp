@@ -13,3 +13,18 @@ void FQEAssetTypeAction::GetResolvedSourceFilePaths(const TArray<UObject*>& Type
 		}
 	}
 }
+
+void FQEAssetTypeAction::OpenAssetEditor(const TArray<UObject*>& InObjects,
+	TSharedPtr<IToolkitHost> EditWithinLevelEditor)
+{
+	Super::OpenAssetEditor(InObjects, EditWithinLevelEditor);
+}
+
+void FQEAssetTypeAction::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
+{
+}
+
+bool FQEAssetTypeAction::HasActions(const TArray<UObject*>& InObjects) const
+{
+	return true;
+}

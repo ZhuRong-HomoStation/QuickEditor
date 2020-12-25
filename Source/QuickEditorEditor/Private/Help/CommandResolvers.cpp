@@ -115,6 +115,49 @@ void QEPrivate::ResolveAssetCommands(FMenuBuilder& InBuilder)
 	}
 }
 
+void QEPrivate::ResolveAssetEditorCommands(FMenuBuilder& InBuilder)
+{
+	FQECmdBuffer& Buffer = QE::GetCmdBuffer();
+
+	EQECommand Cmd = Buffer.Peek();
+
+	int32 Count = 0;
+	while (Cmd != EQECommand::Unknown)
+	{
+		switch (Cmd)
+		{
+		case EQECommand::Menu_AddEntry:
+			{
+				FQEAddEntry AddEntry = Buffer.Read<FQEAddEntry>();
+				AddEntry.EntryEvent = FSimpleDelegate::CreateLambda([Event=AddEntry.EntryEvent]
+                {
+                    FContentBrowserModule& ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
+                    TArray<FAssetData> SelectedAssets;
+                    ContentBrowserModule.Get().GetSelectedAssets(SelectedAssets);
+                    for (FAssetData& Asset : SelectedAssets)
+                    {
+                        QE::SelectedAssets.Add(Asset.GetAsset());
+                    }
+                    QE::Asset::AssetState(true);
+
+                    Event.ExecuteIfBound();
+				
+                    QE::SelectedAssets.Reset();
+                    QE::Asset::AssetState(false);
+                });
+				_ResolveMenuCommand(InBuilder, AddEntry, Count);
+				break;
+			}
+		case EQECommand::Menu_AddWidget:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEAddWidget>(), Count); break;
+		case EQECommand::Menu_BeginSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEBeginSection>(), Count); break;
+		case EQECommand::Menu_EndSection:	_ResolveMenuCommand(InBuilder, Buffer.Read<FQEEndSection>(), Count);break;
+		default: checkNoEntry();
+		}
+		Cmd = Buffer.Peek();
+		++Count;
+	}
+}
+
 QEPrivate::FDetailCmdResolver::FDetailCmdResolver(IDetailLayoutBuilder* InDetailBuilder)
 	: DetailBuilder(InDetailBuilder)
 {

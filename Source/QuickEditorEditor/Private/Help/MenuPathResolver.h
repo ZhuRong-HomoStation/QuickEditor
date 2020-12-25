@@ -131,3 +131,19 @@ protected:
 	virtual void OnEndPopUp(FMenuBuilder& InBuilder) override;
 };
 
+class FAssetEditorMenuPathResolver : public FMenuPathResolver
+{
+public:
+	FAssetEditorMenuPathResolver()
+	{
+		Name = TEXT("AssetEditorMenu");
+	}
+	void RebuildNodes();
+protected:
+	virtual void OnBeginPopUp(FMenuBuilder& InBuilder) override;
+	virtual void OnEndPopUp(FMenuBuilder& InBuilder) override;
+	virtual void OnEntryCallBegin() override;
+	virtual void OnEntryCallEnd() override;
+public:
+	UClass*		CurrentClass;
+};

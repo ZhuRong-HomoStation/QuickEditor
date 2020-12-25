@@ -40,6 +40,13 @@ namespace UM
 		// [meta value]:			menu path, eg. "Test/SubMenu/Section1.Item" 
 		QEMenuItem ,
 
+		// add menu item to asset menu(asset editor) 
+        // [function type]:			static 
+        // [function signature]:	void(void)
+        // [meta value]:			menu path, eg. "Test/SubMenu/Section1.Item"
+		// [!!!InProgress]:			this functional is in develop, don't use it 
+		QEAssetMenuItem ,
+		
 		// add tool bar item to level editor tool bar
 		// [function type]:			static
         // [function signature]:	void(void)
@@ -93,6 +100,11 @@ namespace UM
 		// [meta value]:	target class, without prefix, eg. "Actor"
 		QEReroute ,
 
+		// reroute actions to target struct
+        // [support]:		QEItemDetail 
+        // [meta value]:	target struct, without prefix, eg. "MyStruct"
+        QERerouteStruct ,
+		
 		// may add
 	};
 

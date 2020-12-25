@@ -123,9 +123,14 @@ void FQEDetailCustomize::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyH
 	FQEDetailCustomize::DoneDetails.Reset();
 }
 
-TSharedRef<IPropertyTypeCustomization> FQEPropertyCustomize::MakeInstance()
+TSharedRef<IPropertyTypeCustomization> FQEPropertyCustomize::MakeInstance(UClass* TargetClass)
 {
-	return MakeShareable(new FQEPropertyCustomize());
+	return MakeShareable(new FQEPropertyCustomize(TargetClass));
+}
+
+FQEPropertyCustomize::FQEPropertyCustomize(UClass* InTargetClass)
+	: TargetClass(InTargetClass)
+{
 }
 
 void FQEPropertyCustomize::CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow,
