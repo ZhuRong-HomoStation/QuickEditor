@@ -13,12 +13,16 @@ namespace QE
 
 	namespace Detail
 	{
-		QUICKEDITOR_API TArray<UObject*> GetSelectedObjects();
+		QUICKEDITOR_API const TArray<UObject*>& GetSelectedObjects();
 		QUICKEDITOR_API void HideParent(const FString& InName);
 		QUICKEDITOR_API void ShowParent(const FString& InName);
-		QUICKEDITOR_API void HideCategory(const FString& InName);
-		QUICKEDITOR_API void EditCategory(const FString& InName, int32 InPriority /*0-4, see also ECategoryPriority*/);
-		QUICKEDITOR_API void AddWidget(TSharedPtr<SWidget> InWidget);
+		QUICKEDITOR_API void HideCategory(const FString& InCategory);
+		QUICKEDITOR_API void EditCategory(const FString& InCategory, int32 InPriority /*0-4, see also ECategoryPriority*/);
+		QUICKEDITOR_API void HideProperty(const FString& InPropertyName);
+		QUICKEDITOR_API void EditProperty(const FString& InPropertyName, const FString& InOverrideName, TSharedPtr<SWidget> InWidget);
+		QUICKEDITOR_API void EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InNameWidget, TSharedPtr<SWidget> InValueWidget);
+		QUICKEDITOR_API void AddWidget(const FString& InName, const FString& InSearchName, TSharedPtr<SWidget> InWidget);
+		QUICKEDITOR_API void AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InNameWidget, TSharedPtr<SWidget> InValueWidget);
 	}
 	
 	namespace Actor

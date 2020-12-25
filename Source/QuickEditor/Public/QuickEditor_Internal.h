@@ -32,11 +32,13 @@ namespace QE
 	QUICKEDITOR_API extern TSharedPtr<SWidget>		WindowContent;
 	QUICKEDITOR_API extern FVector2D				WindowSize;
 	
+	// Detail
+	QUICKEDITOR_API extern TArray<UObject*>			SelectedObjects;
+
 	// Commands 
 	QUICKEDITOR_API void CleanState();
 	QUICKEDITOR_API void CleanCommands();
 	QUICKEDITOR_API FQECmdBuffer& GetCmdBuffer();
-
 	
 	namespace Menu
 	{

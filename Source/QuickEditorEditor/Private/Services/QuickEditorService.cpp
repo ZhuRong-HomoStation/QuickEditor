@@ -381,11 +381,13 @@ void UQuickEditorService::_InitAssetNew()
 		{
 			if (ItFunc->HasMetaData(TEXT("QECreateNew")))
 			{
+				CHECK_STATIC(ItFunc);
 				checkf(FactoryInfo.NewFactory == nullptr, TEXT("class %s: QECreateNew function conflict"), *ItClass->GetName());
 				FactoryInfo.NewFactory = *ItFunc;
 			}
 			else if (ItFunc->HasMetaData(TEXT("QECreateFile")))
 			{
+				CHECK_STATIC(ItFunc);
 				checkf(FactoryInfo.FileFactory == nullptr, TEXT("class %s: QECreateFile function conflict"), *ItClass->GetName());
 				FactoryInfo.FileFactory = *ItFunc;
 			}
@@ -506,16 +508,43 @@ void UQuickEditorService::_InitAssetNew()
 
 void UQuickEditorService::_InitDetail()
 {
-	// step1: inject hack property
-	// step2: register detail extension
-	// step3: collect class to detail customizations map
-	// step4: build detail call chain(child first) 
+	// DONE: inject hack property
+	// DONE: register detail extension
+	// DONE: collect class to detail customizations map
+	// NEEDN'T: build detail call chain(child first) 
 	// in this function just do these 
 
 	// here begin detail customization
 	// step1: find lowest class 
 	// step2: search detail call chain 
-	// step3: loop call and decode for hide/show parent 
+	// step3: loop call and decode for hide/show parent
+
+	// collect classes to detail customization map
+	for (TObjectIterator<UClass> ItClass; ItClass; ++ItClass)
+	{
+		UClass* TargetClass = *ItClass;
+		
+		// reroute 
+		if (ItClass->HasMetaData(TEXT("QEReroute")))
+		{
+			TargetClass = FindObjectChecked<UClass>(ANY_PACKAGE, *ItClass->GetMetaData(TEXT("QEReroute")));
+		}
+
+		// each function to find customization function 
+		for (TFieldIterator<UFunction> ItFunc(*ItClass); ItFunc; ++ItFunc)
+		{
+			if (ItFunc->HasMetaData(TEXT("QEDetail")))
+			{
+				CHECK_STATIC(ItFunc);
+				DetailCustomizationMap.Add(TargetClass, *ItFunc);
+			}
+			else if (ItFunc->HasMetaData(TEXT("QEItemDetail")))
+			{
+				CHECK_STATIC(ItFunc);
+				PropertyCustomizationMap.Add(TargetClass, *ItFunc);
+			}
+		}
+	}
 }
 
 #undef CHECK_STATIC

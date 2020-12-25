@@ -41,6 +41,8 @@ namespace QE
 	TSharedPtr<SWidget>		WindowContent;
 	FVector2D				WindowSize;
 	
+	// Detail
+	TArray<UObject*>		SelectedObjects;
 	
 	void CleanState()
 	{
@@ -217,6 +219,96 @@ namespace QE
 	{
 		CHECK_STATE_WINDOW;
 		WindowSize = Size;
+	}
+
+	const TArray<UObject*>& Detail::GetSelectedObjects()
+	{
+		CHECK_STATE_DETAIL;
+		return SelectedObjects;
+	}
+
+	void Detail::HideParent(const FString& InName)
+	{
+		CHECK_STATE_DETAIL;
+		FQEHideParent Cmd;
+		Cmd.ParentName = InName;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::ShowParent(const FString& InName)
+	{
+		CHECK_STATE_DETAIL;
+		FQEShowParent Cmd;
+		Cmd.ParentName = InName;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::HideCategory(const FString& InCategory)
+	{
+		CHECK_STATE_DETAIL;
+		FQEHideCategory Cmd;
+		Cmd.Category = InCategory;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::EditCategory(const FString& InCategory, int32 InPriority)
+	{
+		CHECK_STATE_DETAIL;
+		FQEEditCategory Cmd;
+		Cmd.Category = InCategory;
+		Cmd.Priority = InPriority;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::HideProperty(const FString& InPropertyName)
+	{
+		CHECK_STATE_DETAIL;
+		FQEHideProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::EditProperty(const FString& InPropertyName, const FString& InOverrideName,
+		TSharedPtr<SWidget> InWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEEditProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.OverrideName = InOverrideName;
+		Cmd.ValueWidget = InWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InNameWidget,
+		TSharedPtr<SWidget> InValueWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEEditProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.NameWidget = InNameWidget;
+		Cmd.ValueWidget = InValueWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddWidget(const FString& InName, const FString& InSearchName, TSharedPtr<SWidget> InWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEDetailAddWidget Cmd;
+		Cmd.WidgetName = InName;
+		Cmd.SearchName = InSearchName;
+		Cmd.ValueWidget = InWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InNameWidget,
+		TSharedPtr<SWidget> InValueWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEDetailAddWidget Cmd;
+		Cmd.SearchName = InSearchName;
+		Cmd.NameWidget = InNameWidget;
+		Cmd.ValueWidget = InValueWidget;
+		CmdBuffer.Write(Cmd);
 	}
 }
 

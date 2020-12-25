@@ -42,6 +42,9 @@ private:
 
 	// TODO Detail
 
+public:
+	TMap<UClass*, UFunction*>	DetailCustomizationMap;
+	TMap<UClass*, UFunction*>	PropertyCustomizationMap;
 private:
 	FLevelMenuPathResolver		LevelEditorPaths;
 	FAssetMenuPathResolver		AssetEditorPaths;

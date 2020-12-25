@@ -1,6 +1,9 @@
 ﻿#include "CommandResolvers.h"
 
 #include "ContentBrowserModule.h"
+#include "DetailCategoryBuilder.h"
+#include "DetailLayoutBuilder.h"
+#include "DetailWidgetRow.h"
 #include "IContentBrowserSingleton.h"
 #include "QuickEditor_Internal.h"
 #include "CommandBuffer/QECmdBuffer.h"
@@ -110,6 +113,162 @@ void QEPrivate::ResolveAssetCommands(FMenuBuilder& InBuilder)
 		Cmd = Buffer.Peek();
 		++Count;
 	}
+}
+
+QEPrivate::FDetailCmdResolver::FDetailCmdResolver(IDetailLayoutBuilder* InDetailBuilder, IPropertyTypeCustomizationUtils* InCustomizationUtils)
+	: DetailBuilder(InDetailBuilder)
+	, CustomizationUtils(InCustomizationUtils)
+{
+	check(CurCategoryBuilder != nullptr);
+	CurCategoryBuilder = &DetailBuilder->EditCategory(TEXT("Default"));
+}
+
+void QEPrivate::FDetailCmdResolver::Reset()
+{
+	CurCategoryBuilder = &DetailBuilder->EditCategory(TEXT("Default"));
+}
+
+void QEPrivate::FDetailCmdResolver::CleanUp()
+{
+	OverrideStateMap.Reset();
+	CurCategoryBuilder = &DetailBuilder->EditCategory(TEXT("Default"));	
+}
+
+void QEPrivate::FDetailCmdResolver::ResolveCommands()
+{
+	FQECmdBuffer& Buffer = QE::GetCmdBuffer();
+
+	EQECommand CmdType = Buffer.Peek();
+	while (CmdType != EQECommand::Unknown)
+	{
+		switch (CmdType)
+		{
+		case EQECommand::Detail_HideParent:
+		{
+			auto Cmd = Buffer.Read<FQEHideParent>();
+			if (!OverrideStateMap.Contains(Cmd.ParentName))
+			{
+				OverrideStateMap.Add(Cmd.ParentName, false);
+			}
+			break;
+		}
+		case EQECommand::Detail_ShowParent: break;
+		{
+			auto Cmd = Buffer.Read<FQEShowParent>();
+			if (!OverrideStateMap.Contains(Cmd.ParentName))
+			{
+				OverrideStateMap.Add(Cmd.ParentName, true);
+			}
+			break;
+		}
+		case EQECommand::Detail_HideCategory:
+		{
+			auto Cmd = Buffer.Read<FQEHideCategory>();
+			DetailBuilder->HideCategory(FName(Cmd.Category));
+			break;
+		}
+		case EQECommand::Detail_EditCategory:
+		{
+			auto Cmd = Buffer.Read<FQEEditCategory>();
+			DetailBuilder->EditCategory(FName(Cmd.Category), FText::FromString(Cmd.Category), (ECategoryPriority::Type)(Cmd.Priority));
+			break;
+		}
+		case EQECommand::Detail_HideProperty:
+		{
+			auto Cmd = Buffer.Read<FQEHideProperty>();
+			auto Property = DetailBuilder->GetProperty(FName(Cmd.PropertyName));
+			DetailBuilder->HideProperty(Property);
+			break;
+		}
+		case EQECommand::Detail_EditProperty:
+		{
+			auto Cmd = Buffer.Read<FQEEditProperty>();
+			auto Property = DetailBuilder->GetProperty(FName(Cmd.PropertyName));
+			auto& PropertyRow = CurCategoryBuilder->AddProperty(Property);
+			if (!Cmd.OverrideName.IsEmpty())
+			{
+				auto& CustomRow = PropertyRow.CustomWidget();
+				CustomRow.NameContent()
+                [
+                    Cmd.NameWidget.ToSharedRef()
+                ];
+				CustomRow.ValueContent()
+                [
+                    Cmd.ValueWidget.ToSharedRef()
+                ];
+			}
+			else if (Cmd.NameWidget.IsValid())
+			{
+				auto& CustomRow = PropertyRow.CustomWidget();
+				CustomRow.NameContent()
+				[
+					SNew(STextBlock)
+		            .Text(FText::FromString(Cmd.OverrideName))
+		            .Font(CustomizationUtils->GetRegularFont())
+				];
+				CustomRow.ValueContent()
+				[
+					Cmd.ValueWidget.ToSharedRef()
+				];
+			}
+			else
+			{
+				PropertyRow.CustomWidget()
+                .WholeRowContent()
+                [
+                    Cmd.ValueWidget.ToSharedRef()
+                ];
+			}
+			break;
+		}
+		case EQECommand::Detail_AddWidget:
+		{
+			auto Cmd = Buffer.Read<FQEDetailAddWidget>();
+			auto& CustomRow = CurCategoryBuilder->AddCustomRow(FText::FromString(Cmd.SearchName));
+			if (!Cmd.WidgetName.IsEmpty())
+			{
+				CustomRow.NameContent()
+				[
+					SNew(STextBlock)
+	                .Text(FText::FromString(Cmd.WidgetName))
+	                .Font(CustomizationUtils->GetRegularFont())
+				];
+				CustomRow.ValueContent()
+				[
+					Cmd.ValueWidget.ToSharedRef()
+				];
+			}
+			else if (Cmd.NameWidget.IsValid())
+			{
+				CustomRow.NameContent()
+                [
+                    Cmd.NameWidget.ToSharedRef()
+                ];
+				CustomRow.ValueContent()
+                [
+                    Cmd.ValueWidget.ToSharedRef()
+                ];
+			}
+			else
+			{
+				CustomRow.WholeRowContent()
+                [
+                    Cmd.ValueWidget.ToSharedRef()
+                ];
+			}
+			break;
+		}
+		default: checkNoEntry();
+		}
+		CmdType = Buffer.Peek();
+	}
+
+}
+
+bool QEPrivate::FDetailCmdResolver::QueryShowState(const FString& ClassName)
+{
+	bool* FoundState = OverrideStateMap.Find(ClassName);
+	return FoundState ? *FoundState : true;
 }
 
 void QEPrivate::_ResolveMenuCommand(FMenuBuilder& InBuilder, const FQECommand& InCmd, int32 CommandID)

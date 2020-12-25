@@ -13,6 +13,10 @@ enum class EQECommand
 	Detail_HideParent ,
 	Detail_ShowParent ,
 	Detail_HideCategory ,
+	Detail_EditCategory ,
+	Detail_HideProperty ,
+	Detail_EditProperty ,
+	Detail_AddWidget ,
 };
 
 struct FQECommand
@@ -64,4 +68,36 @@ struct FQEHideCategory : public FQECommand
 	static constexpr auto Type = EQECommand::Detail_HideCategory;
 	FString		Category;
 };
+
+struct FQEEditCategory : public FQECommand
+{
+	static constexpr auto Type = EQECommand::Detail_EditCategory;
+	FString		Category;
+	int32		Priority;
+};
+
+struct FQEHideProperty : public FQECommand
+{
+	static constexpr auto Type = EQECommand::Detail_HideProperty;
+	FString		PropertyName;
+};
+
+struct FQEEditProperty : public FQECommand
+{
+	static constexpr auto Type = EQECommand::Detail_EditProperty;
+	FString					PropertyName;
+	FString					OverrideName;
+	TSharedPtr<SWidget>		NameWidget;
+	TSharedPtr<SWidget>		ValueWidget;
+};
+
+struct FQEDetailAddWidget : public FQECommand
+{
+	static constexpr auto Type = EQECommand::Detail_AddWidget;
+	FString					WidgetName;
+	FString					SearchName;
+	TSharedPtr<SWidget>		NameWidget;
+	TSharedPtr<SWidget>		ValueWidget;
+};
+
 

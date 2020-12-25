@@ -33,6 +33,7 @@ public class QuickEditorEditor : ModuleRules
 				"Projects" ,
 				"UnrealEd" ,
 				"PropertyEditor" ,
+				"EditorStyle" ,
 			});
 	}
 }
