@@ -268,8 +268,17 @@ namespace QE
 		CmdBuffer.Write(Cmd);
 	}
 
-	void Detail::EditProperty(const FString& InPropertyName, const FString& InOverrideName,
-		TSharedPtr<SWidget> InWidget)
+	void Detail::EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEEditProperty Cmd;
+		Cmd.PropertyName = InPropertyName;
+		Cmd.ValueWidget = InWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InWidget,
+		const FString& InOverrideName)
 	{
 		CHECK_STATE_DETAIL;
 		FQEEditProperty Cmd;
@@ -279,8 +288,8 @@ namespace QE
 		CmdBuffer.Write(Cmd);
 	}
 
-	void Detail::EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InNameWidget,
-		TSharedPtr<SWidget> InValueWidget)
+	void Detail::EditProperty(const FString& InPropertyName, TSharedPtr<SWidget> InValueWidget,
+		TSharedPtr<SWidget> InNameWidget)
 	{
 		CHECK_STATE_DETAIL;
 		FQEEditProperty Cmd;
@@ -290,7 +299,16 @@ namespace QE
 		CmdBuffer.Write(Cmd);
 	}
 
-	void Detail::AddWidget(const FString& InName, const FString& InSearchName, TSharedPtr<SWidget> InWidget)
+	void Detail::AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InWidget)
+	{
+		CHECK_STATE_DETAIL;
+		FQEDetailAddWidget Cmd;
+		Cmd.SearchName = InSearchName;
+		Cmd.ValueWidget = InWidget;
+		CmdBuffer.Write(Cmd);
+	}
+
+	void Detail::AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InWidget, const FString& InName)
 	{
 		CHECK_STATE_DETAIL;
 		FQEDetailAddWidget Cmd;
@@ -300,8 +318,8 @@ namespace QE
 		CmdBuffer.Write(Cmd);
 	}
 
-	void Detail::AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InNameWidget,
-		TSharedPtr<SWidget> InValueWidget)
+	void Detail::AddWidget(const FString& InSearchName, TSharedPtr<SWidget> InValueWidget,
+		TSharedPtr<SWidget> InNameWidget)
 	{
 		CHECK_STATE_DETAIL;
 		FQEDetailAddWidget Cmd;

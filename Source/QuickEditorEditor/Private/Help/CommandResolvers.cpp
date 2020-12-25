@@ -152,7 +152,7 @@ void QEPrivate::FDetailCmdResolver::ResolveCommands()
 			}
 			break;
 		}
-		case EQECommand::Detail_ShowParent: break;
+		case EQECommand::Detail_ShowParent:
 		{
 			auto Cmd = Buffer.Read<FQEShowParent>();
 			if (!OverrideStateMap.Contains(Cmd.ParentName))
@@ -170,20 +170,25 @@ void QEPrivate::FDetailCmdResolver::ResolveCommands()
 		case EQECommand::Detail_EditCategory:
 		{
 			auto Cmd = Buffer.Read<FQEEditCategory>();
-			DetailBuilder->EditCategory(FName(Cmd.Category), FText::FromString(Cmd.Category), (ECategoryPriority::Type)(Cmd.Priority));
+			CurCategoryBuilder = &DetailBuilder->EditCategory(FName(Cmd.Category), FText::FromString(Cmd.Category), (ECategoryPriority::Type)(Cmd.Priority));
 			break;
 		}
 		case EQECommand::Detail_HideProperty:
 		{
 			auto Cmd = Buffer.Read<FQEHideProperty>();
-			auto Property = DetailBuilder->GetProperty(FName(Cmd.PropertyName));
-			DetailBuilder->HideProperty(Property);
+			break;
+			FString PropertyClass, PropertyName;
+			Cmd.PropertyName.Split(TEXT("."), &PropertyClass, &PropertyName);
+			DetailBuilder->HideProperty(FName(Cmd.PropertyName), FindObjectChecked<UStruct>(ANY_PACKAGE, *PropertyClass));
 			break;
 		}
 		case EQECommand::Detail_EditProperty:
 		{
 			auto Cmd = Buffer.Read<FQEEditProperty>();
-			auto Property = DetailBuilder->GetProperty(FName(Cmd.PropertyName));
+			break;
+			FString PropertyClass, PropertyName;
+			Cmd.PropertyName.Split(TEXT("."), &PropertyClass, &PropertyName);
+			auto Property = DetailBuilder->GetProperty(FName(PropertyName), FindObjectChecked<UStruct>(ANY_PACKAGE, *PropertyClass));
 			auto& PropertyRow = CurCategoryBuilder->AddProperty(Property);
 			if (!Cmd.OverrideName.IsEmpty())
 			{

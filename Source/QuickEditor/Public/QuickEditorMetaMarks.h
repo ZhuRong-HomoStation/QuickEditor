@@ -75,7 +75,6 @@ namespace UM
 		// [function type]:			static
 		// [function signature]:	void(void)
 		// [meta value]:			None, it just a mark
-		// [!!!InProgress]:			this functional is in develop, don't use it 
 		QEDetail ,
 
 		// custom property detail 

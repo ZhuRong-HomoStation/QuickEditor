@@ -1,6 +1,7 @@
 ﻿#include "Example.h"
 #include "Misc/FileHelper.h"
 #include "QuickEditor.h"
+#include "Engine/StaticMeshActor.h"
 #include "Styling/SlateStyleRegistry.h"
 
 void UMenuExample::Example7()
@@ -133,12 +134,12 @@ void UActorExample::Example2()
 	{
 		QE::Menu::AddWidget(
 			SNew(SButton)
-                .Text(FText::FromString(Actor->GetActorLabel()))
-                .OnClicked_Lambda([Actor]
-						 {
-							 UKismetSystemLibrary::PrintString(GWorld, Actor->GetActorLabel());
-							 return FReply::Handled();
-						 }));
+            .Text(FText::FromString(Actor->GetActorLabel()))
+            .OnClicked_Lambda([Actor]
+			 {
+				 UKismetSystemLibrary::PrintString(GWorld, Actor->GetActorLabel());
+				 return FReply::Handled();
+			 }));
 	}
 	QE::Menu::EndSection();
 }
@@ -174,12 +175,12 @@ void UAssetExample::Example2()
 	{
 		QE::Menu::AddWidget(
 			SNew(SButton)
-                .Text(FText::FromString(Asset->GetName()))
-                .OnClicked_Lambda([Asset]
-						 {
-							 UKismetSystemLibrary::PrintString(GWorld, Asset->GetName());
-							 return FReply::Handled();
-						 }));
+            .Text(FText::FromString(Asset->GetName()))
+            .OnClicked_Lambda([Asset]
+			 {
+				 UKismetSystemLibrary::PrintString(GWorld, Asset->GetName());
+				 return FReply::Handled();
+			 }));
 	}
 	QE::Menu::EndSection();
 }
@@ -205,4 +206,84 @@ void UNewAssetExample::ImportAsset()
 
 	// use QE::AssetNew::IsReimport() control logic when import or reimport
 	// QE::AssetNew::CreateDefault() will process this case automatic 
+}
+
+AExampleActor::AExampleActor()
+{
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
+}
+
+void UCustomDetailExampleA::CustomDetailExample()
+{
+	decltype(auto) Objs = QE::Detail::GetSelectedObjects();
+
+	// default category is "Default"
+	for (UObject* Obj : Objs)
+	{
+		QE::Detail::AddWidget(Obj->GetName(), SNew(STextBlock).Text(FText::FromString(Obj->GetName())));
+	}
+
+	// hide category
+	QE::Detail::HideCategory(TEXT("Actor"));
+	
+	// edit category
+	QE::Detail::EditCategory(TEXT("臭臭臭"), 0);
+
+	// widget we will use 
+	TSharedRef<SWidget> SmellyMan =
+		SNew(SBox)
+		.WidthOverride(200)
+		.HeightOverride(200)
+		[
+			SNew(SImage)
+	        .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+	                                                       TEXT("MenuExample.Example2")))
+		];
+
+	// add whole row widget
+	QE::Detail::AddWidget(TEXT("臭臭先生A"), SmellyMan);
+
+	// add value widget
+	QE::Detail::AddWidget(TEXT("臭臭先生B"), SmellyMan, TEXT("臭臭先生B"));
+
+	// add custom name widget
+	QE::Detail::AddWidget(TEXT("臭臭先生C"), SmellyMan, SmellyMan);
+}
+
+void UExampleActorDetail::CustomDetailExample()
+{
+	// widget we will use 
+	TSharedRef<SWidget> SmellyMan =
+        SNew(SBox)
+        .WidthOverride(200)
+        .HeightOverride(200)
+        [
+            SNew(SImage)
+            .Image(FSlateStyleRegistry::FindSlateStyle(TEXT("QEStyleSet"))->GetBrush(
+                                                           TEXT("MenuExample.Example2")))
+        ];
+	
+	// Hide parent detail customize 
+	QE::Detail::HideParent(TEXT("Object"));
+
+	// !!!!!don't use functions about properties, they are invalid for a while  
+
+	// Hide Property
+	QE::Detail::HideProperty(TEXT("ExampleActor.PropertyA"));
+
+	// Edit Property whole row 
+	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyB"), SmellyMan);
+
+	// Edit Property with name  
+	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyC"), SmellyMan, TEXT("CCCCCCC"));
+
+	// Edit Property with custom name widget
+	QE::Detail::EditProperty(TEXT("ExampleActor.PropertyC"), SmellyMan, SNew(SButton)[SmellyMan]);
+}
+
+void AExampleActorChild::CustomDetailExample()
+{
+	// Show parent(witch we hide it in AExampleActor)
+	QE::Detail::ShowParent(TEXT("Object"));
 }

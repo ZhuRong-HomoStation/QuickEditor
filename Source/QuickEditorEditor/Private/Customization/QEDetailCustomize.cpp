@@ -27,6 +27,7 @@ void FQEDetailCustomize::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyH
 	TArray<UObject*> AllObjects;
 	PropertyHandle->GetOuterObjects(AllObjects);
 	TArray<UFunction*> CallChain;
+	TArray<UClass*> CallChainClass;
 	UQuickEditorService* Service = &UQuickEditorService::Get();
 	UClass* LowestClass = AllObjects[0]->GetClass();
 
@@ -49,6 +50,7 @@ void FQEDetailCustomize::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyH
 		if (Func)
 		{
 			CallChain.Add(*Func);
+			CallChainClass.Add(LowestClass);
 		}
 		LowestClass = LowestClass->GetSuperClass();
 	}
@@ -57,9 +59,10 @@ void FQEDetailCustomize::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyH
 	QEPrivate::FDetailCmdResolver Resolver(DetailBuilder, &CustomizationUtils);
 	QE::SelectedObjects = MoveTemp(AllObjects);
 	QE::Detail::DetailState(true);
-	for (UFunction* Func : CallChain)
+	for (int32 i = 0; i < CallChain.Num(); ++i)
 	{
-		if (!Resolver.QueryShowState(Func->GetOuter()->GetClass()->GetName()))
+		UFunction* Func = CallChain[i];
+		if (!Resolver.QueryShowState(CallChainClass[i]->GetName()))
 		{
 			continue;
 		}

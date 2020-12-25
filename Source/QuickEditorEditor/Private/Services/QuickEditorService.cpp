@@ -82,6 +82,7 @@ void UQuickEditorService::Initialize(FSubsystemCollectionBase& Collection)
 
 	_InitToolBar();
 	_InitAssetNew();
+	_InitDetail();
 }
 
 void UQuickEditorService::Deinitialize()
@@ -508,17 +509,6 @@ void UQuickEditorService::_InitAssetNew()
 
 void UQuickEditorService::_InitDetail()
 {
-	// DONE: inject hack property
-	// DONE: register detail extension
-	// DONE: collect class to detail customizations map
-	// NEEDN'T: build detail call chain(child first) 
-	// in this function just do these 
-
-	// here begin detail customization
-	// step1: find lowest class 
-	// step2: search detail call chain 
-	// step3: loop call and decode for hide/show parent
-
 	// collect classes to detail customization map
 	for (TObjectIterator<UClass> ItClass; ItClass; ++ItClass)
 	{

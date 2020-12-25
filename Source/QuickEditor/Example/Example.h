@@ -136,3 +136,57 @@ public:
 	UFUNCTION(meta=(QECreateFile="txt"))
 	static void ImportAsset();
 };
+
+// Example Actor
+UCLASS()
+class AExampleActor : public AActor
+{
+	GENERATED_BODY()
+public:
+	AExampleActor();
+	UPROPERTY(EditAnywhere)
+	USceneComponent*	Root;
+	
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyA;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyB;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyC;
+	UPROPERTY(EditAnywhere, Category="CateA")
+	int32			PropertyD;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyE;
+	UPROPERTY(EditAnywhere, Category="CateB")
+	int32			PropertyF;
+};
+
+// Custom all object's Detail
+UCLASS(meta=(QEReroute="Object"))
+class UCustomDetailExampleA : public UObject
+{
+	GENERATED_BODY()
+public:
+	UFUNCTION(meta=(QEDetail))
+	static void CustomDetailExample();
+};
+
+// Custom Example actor detail 
+UCLASS(meta=(QEReroute="ExampleActor"))
+class UExampleActorDetail : public  UObject
+{
+	GENERATED_BODY()
+public:
+	UFUNCTION(meta=(QEDetail))
+    static void CustomDetailExample();
+};
+
+// Custom detail in class
+UCLASS()
+class AExampleActorChild : public AExampleActor
+{
+	GENERATED_BODY()
+public:
+	UFUNCTION(meta=(QEDetail))
+    static void CustomDetailExample();
+};
