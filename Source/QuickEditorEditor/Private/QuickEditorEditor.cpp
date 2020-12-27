@@ -11,14 +11,14 @@ void FQuickEditorEditor::StartupModule()
 	// inject detail 
 	if (!UObject::StaticClass()->FindPropertyByName(TEXT("QEDummy")))
 	{
-		FStructProperty* DummyProperty = new FStructProperty(AActor::StaticClass()
+		FStructProperty* DummyProperty = new FStructProperty(UObject::StaticClass()
             , TEXT("QEDummy"), EObjectFlags::RF_NoFlags);
 		DummyProperty->Struct = FQEDummyStruct::StaticStruct();
 		DummyProperty->PropertyFlags |= EPropertyFlags::CPF_Transient;
 		DummyProperty->PropertyFlags |= EPropertyFlags::CPF_EditConst;
 		DummyProperty->PropertyFlags |= EPropertyFlags::CPF_Edit;
 		DummyProperty->SetMetaData(TEXT("Category"), TEXT("QuickEditor"));
-		AActor::StaticClass()->AddCppProperty(DummyProperty);
+		UObject::StaticClass()->AddCppProperty(DummyProperty);
 	}
 
 	// add customize

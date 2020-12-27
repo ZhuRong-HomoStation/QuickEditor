@@ -309,23 +309,23 @@ void UQuickEditorService::_InitActorEditMenu()
 	MenuExtenders.Add(FLevelEditorModule::FLevelViewportMenuExtender_SelectedActors::CreateLambda(
 		[this](const TSharedRef<FUICommandList> InCommandList, const TArray<AActor*> InActor)
 	{
-			UClass* LowestClass = nullptr;
-            for (auto& Actor : InActor)
+		UClass* LowestClass = nullptr;
+        for (auto& Actor : InActor)
+        {
+            if (LowestClass == nullptr)
             {
-                if (LowestClass == nullptr)
-                {
-                    LowestClass = Actor->GetClass();
-                    continue;
-                }
-            	while (!Actor->GetClass()->IsChildOf(LowestClass))
-            	{
-            		LowestClass = LowestClass->GetSuperClass();
-            	}
+                LowestClass = Actor->GetClass();
+                continue;
             }
+            while (!Actor->GetClass()->IsChildOf(LowestClass))
+            {
+            	LowestClass = LowestClass->GetSuperClass();
+            }
+        }
 
-            ActorEditorPaths.CurrentClass = LowestClass;
-			ActorEditorPaths.RebuildNodes();
-            return ActorEditorPaths.GetMenuExtender(TEXT("ActorControl"), EExtensionHook::Before).ToSharedRef();
+        ActorEditorPaths.CurrentClass = LowestClass;
+		ActorEditorPaths.RebuildNodes();
+        return ActorEditorPaths.GetMenuExtender(TEXT("ActorControl"), EExtensionHook::Before).ToSharedRef();
 	}));
 }
 

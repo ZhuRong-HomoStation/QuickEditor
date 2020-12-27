@@ -103,6 +103,7 @@ namespace UM
 		// reroute actions to target struct
         // [support]:		QEItemDetail 
         // [meta value]:	target struct, without prefix, eg. "MyStruct"
+		// [!!!InProgress]:			this functional is in develop, don't use it 
         QERerouteStruct ,
 		
 		// may add
