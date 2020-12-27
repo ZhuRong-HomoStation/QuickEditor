@@ -81,9 +81,9 @@ void FQEDetailCustomize::CustomizeChildren(TSharedRef<IPropertyHandle> PropertyH
 	// find lowest class
 	for (int32 i = 0; i < AllObjects.Num(); ++i)
 	{
-		if (LowestClass->IsChildOf(AllObjects[i]->GetClass()))
+		while (!AllObjects[i]->GetClass()->IsChildOf(LowestClass))
 		{
-			LowestClass = AllObjects[i]->GetClass();
+			LowestClass = LowestClass->GetSuperClass();
 		}
 	}
 	

@@ -289,9 +289,9 @@ void UQuickEditorService::_InitAssetEditMenu()
 				LowestClass = Asset.GetClass();
 				continue;
 			}
-			if (LowestClass != Asset.GetClass() && LowestClass->IsChildOf(Asset.GetClass()))
+			while (!Asset.GetClass()->IsChildOf(LowestClass))
 			{
-				LowestClass = Asset.GetClass();
+				LowestClass = LowestClass->GetSuperClass();
 			}
 		}
 
@@ -317,10 +317,10 @@ void UQuickEditorService::_InitActorEditMenu()
                     LowestClass = Actor->GetClass();
                     continue;
                 }
-                if (LowestClass != Actor->GetClass() && LowestClass->IsChildOf(Actor->GetClass()))
-                {
-                    LowestClass = Actor->GetClass();
-                }
+            	while (!Actor->GetClass()->IsChildOf(LowestClass))
+            	{
+            		LowestClass = LowestClass->GetSuperClass();
+            	}
             }
 
             ActorEditorPaths.CurrentClass = LowestClass;
