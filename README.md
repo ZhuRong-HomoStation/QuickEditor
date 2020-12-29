@@ -5,3 +5,7 @@
 
 **元标记说明**: [QuickEditorMetaMarks.h](./Source/QuickEditor/Public/QuickEditorMetaMarks.h)中对各种元标记有详细的注解，并说明了它们的使用规则
 
+**TODO**: 
+- [ ] QEAssetMenuItem: AssetEditor界面的Menu扩展
+- [ ] QEItemDetail: 对Struct的Detail界面进行定制
+- [ ] QERerouteStruct: 针对Struct的Reroute
