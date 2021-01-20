@@ -34,6 +34,9 @@ public class QuickEditorEditor : ModuleRules
 				"UnrealEd" ,
 				"PropertyEditor" ,
 				"EditorStyle" ,
+#if UE_4_26_OR_LATER
+				"DeveloperSettings",
+#endif
 			});
 	}
 }
